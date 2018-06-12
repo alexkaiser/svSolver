@@ -75,6 +75,12 @@ if(SV_USE_SVLS)
   set(SV_USE_MPI ON)
 endif()
 
+# svMemLS
+if(SV_USE_SVMEMLS)
+  set(SVMEMLS_BUILD_TYPE "Source")
+  set(SV_USE_MPI ON)
+endif()
+
 if(SV_USE_LESLIB)
   find_package(LESLIB REQUIRED)
 endif()

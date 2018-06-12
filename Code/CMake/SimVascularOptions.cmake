@@ -68,6 +68,11 @@ option(SV_USE_VARWALL "" ON)
 option(SV_USE_SPARSE "Use sparse Library" ON)
 option(SV_USE_METIS "Use metis Library" ON)
 option(SV_USE_NSPCG "Use nspcg Library" ON)
+# Additional metis, parmetis options necessary for svfsi
+option(SV_USE_METIS_SVFSI "Use metis_svfsi Library" ON)
+option(SV_USE_PARMETIS_SVFSI "Use parmetis_svfsi Library" ON)
+option(SV_USE_TETGEN "Use tetgen Library" ON)
+option(SV_USE_TRILINOS "Use Trilinos Library with svFSI" OFF)
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
@@ -94,6 +99,12 @@ if(SV_USE_SVLS)
 endif()
 set(SVLS_BUILD_TYPE "Source")
 
+option(SV_USE_SVMEMLS "Use svMemLS as an additional linear solver" ON )
+if(SV_USE_SVMEMLS)
+  set(USE_SVMEMLS 1)
+endif()
+set(SVMEMLS_BUILD_TYPE "Source")
+
 option(SV_USE_LESLIB "Use leslib as linear solver" OFF )
 if(SV_USE_LESLIB)
   set(SV_USE_LESLIB 1)
@@ -110,6 +121,9 @@ mark_as_advanced(SV_USE_WIN32_REGISTRY)
 # Enable Fortran
 enable_language(Fortran)
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+  # svsolver requires -ffixed-line-length-132 but
+  # svFSI does not compile with this flag
+  # reset flags for svMemLS and svFSI in their local CMakeLists
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffixed-line-length-132 -cpp")
 else()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132 -fpp")

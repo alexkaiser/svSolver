@@ -68,6 +68,17 @@ endif()
 set(FLOWSOLVER_SUBDIRS ${FLOWSOLVER_SUBDIRS} svSolver)
 
 #-----------------------------------------------------------------------------
+# svFSI
+#-----------------------------------------------------------------------------
+if(NOT SV_USE_DUMMY_MPI)
+  set(FLOWSOLVER_SUBDIRS ${FLOWSOLVER_SUBDIRS} svMemLS)
+  set(FLOWSOLVER_SUBDIRS ${FLOWSOLVER_SUBDIRS} svFSI)
+else()
+  message(WARNING "svFSI requires MPI (not dummyMPI) and SV_USE_DUMMY_MPI \
+is set to true. Not compiling svFSI or svMemLS target.")
+endif()
+
+#-----------------------------------------------------------------------------
 # Optional header path
 #-----------------------------------------------------------------------------
 set(FLOWSOLVER_OPTIONS_HEADER_PATH ${CMAKE_CURRENT_BINARY_DIR} CACHE INTERNAL "" FORCE)
@@ -113,6 +124,7 @@ if(NOT SV_USE_DUMMY_MPI)
   if(SV_BUILD_ADDITIONAL_NOMPI_VERSION)
     set(SV_USE_DUMMY_MPI ON)
     set(SV_MPI_NAME_EXT "-nompi")
+    include_directories(BEFORE dummyMPI)
     add_subdirectory(dummyMPI)
     add_subdirectory(svLS svLS${SV_MPI_NAME_EXT})
     add_subdirectory(svSolver svSolver${SV_MPI_NAME_EXT})

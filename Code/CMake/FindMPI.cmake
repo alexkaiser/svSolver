@@ -524,7 +524,6 @@ set(MPIEXEC_POSTFLAGS    ""    CACHE STRING "These flags will come after all fla
 set(MPIEXEC_MAX_NUMPROCS "2"   CACHE STRING "Maximum number of processors available to run MPI applications.")
 mark_as_advanced(MPIEXEC MPIEXEC_NUMPROC_FLAG MPIEXEC_PREFLAGS MPIEXEC_POSTFLAGS MPIEXEC_MAX_NUMPROCS)
 
-
 #=============================================================================
 # Backward compatibility input hacks.  Propagate the FindMPI hints to C and
 # CXX if the respective new versions are not defined.  Translate the old
@@ -615,6 +614,7 @@ if (MPI_LIBRARIES)
   list(GET MPI_LIBRARIES 0 MPI_LIBRARY_WORK)
   set(MPI_LIBRARY ${MPI_LIBRARY_WORK} CACHE FILEPATH "MPI library to link against" FORCE)
 else()
+  message("in chop else clause")
   set(MPI_LIBRARY "MPI_LIBRARY-NOTFOUND" CACHE FILEPATH "MPI library to link against" FORCE)
 endif()
 
@@ -624,7 +624,8 @@ if (MPI_NUMLIBS GREATER 1)
   list(REMOVE_AT MPI_EXTRA_LIBRARY_WORK 0)
   set(MPI_EXTRA_LIBRARY ${MPI_EXTRA_LIBRARY_WORK} CACHE STRING "Extra MPI libraries to link against" FORCE)
 else()
-  set(MPI_EXTRA_LIBRARY "MPI_EXTRA_LIBRARY-NOTFOUND" CACHE STRING "Extra MPI libraries to link against" FORCE)
+  # Set to empty string if no extra libraries link against
+  set(MPI_EXTRA_LIBRARY "" CACHE STRING "Extra MPI libraries to link against" FORCE)
 endif()
 #=============================================================================
 

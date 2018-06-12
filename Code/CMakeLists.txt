@@ -24,6 +24,7 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+
 #-----------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.3.0)
 
@@ -94,6 +95,7 @@ include(SimVascularInstallSetup)
 set(SV_PRESOLVER_EXE "svpre")
 set(SV_FLOWSOLVER_EXE "svsolver")
 set(SV_POSTSOLVER_EXE "svpost")
+set(SV_SVFSI_EXE "svFSI")
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
