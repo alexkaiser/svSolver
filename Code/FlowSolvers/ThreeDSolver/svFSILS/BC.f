@@ -48,12 +48,12 @@
 !--------------------------------------------------------------------
 
 
-      SUBROUTINE memLS_BC_CREATE (lhs, faIn, nNo, dof, BC_type, gNodes, &
+      SUBROUTINE FSILS_BC_CREATE (lhs, faIn, nNo, dof, BC_type, gNodes, &
      &   Val)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: faIn, nNo, dof
       INTEGER, INTENT(IN) :: BC_type
       INTEGER, INTENT(IN) :: gNodes(nNo)
@@ -63,19 +63,19 @@
       REAL(KIND=8), ALLOCATABLE :: v(:,:)
 
       IF (faIn .GT. lhs%nFaces) THEN
-         PRINT *, "memLS: faIn is exceeding lhs structure maximum",     &
+         PRINT *, "FSILS: faIn is exceeding lhs structure maximum",     &
      &      " number of face:", lhs%nFaces, " .LT. ", faIn
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
       IF (faIn .LE. 0) THEN
-         PRINT *, "memLS: faIn should be greater than zero"
-         STOP "memLS: FATAL ERROR"
+         PRINT *, "FSILS: faIn should be greater than zero"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       IF (lhs%face(faIn)%foC) THEN
-         PRINT *, "memLS: face is not free, you may use memLS_BC_FREE", &
+         PRINT *, "FSILS: face is not free, you may use FSILS_BC_FREE", &
      &      " to free it"
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       lhs%face(faIn)%nNo  = nNo
@@ -110,7 +110,7 @@
                Ac = lhs%face(faIn)%glob(a)
                v(:,Ac) = lhs%face(faIn)%val(:,a)
             END DO
-            CALL memLS_COMMUV(lhs, dof, v)
+            CALL FSILS_COMMUV(lhs, dof, v)
 
             DO a=1, nNo
                Ac = lhs%face(faIn)%glob(a)
@@ -120,16 +120,16 @@
       END IF
 
       RETURN
-      END SUBROUTINE memLS_BC_CREATE
+      END SUBROUTINE FSILS_BC_CREATE
 
 !====================================================================
 
       SUBROUTINE external_BC_CREATE (lhs, faIn, nNo, dof, BC_type,      &
      &         gNodes, Val)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: faIn, nNo, dof
       INTEGER, INTENT(IN) :: BC_type
       INTEGER, INTENT(IN) :: gNodes(nNo)
@@ -139,19 +139,19 @@
       REAL(KIND=8), ALLOCATABLE :: v(:,:)
 
       IF (faIn .GT. lhs%nFaces) THEN
-         PRINT *, "memLS: faIn is exceeding lhs structure maximum",     &
+         PRINT *, "FSILS: faIn is exceeding lhs structure maximum",     &
      &      " number of face:", lhs%nFaces, " .LT. ", faIn
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
       IF (faIn .LE. 0) THEN
-         PRINT *, "memLS: faIn should be greater than zero"
-         STOP "memLS: FATAL ERROR"
+         PRINT *, "FSILS: faIn should be greater than zero"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       IF (lhs%face(faIn)%foC) THEN
-         PRINT *, "memLS: face is not free, you may use memLS_BC_FREE", &
+         PRINT *, "FSILS: face is not free, you may use FSILS_BC_FREE", &
      &      " to free it"
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       lhs%face(faIn)%nNo  = nNo
@@ -186,7 +186,7 @@
                Ac = lhs%face(faIn)%glob(a)
                v(:,Ac) = lhs%face(faIn)%val(:,a)
             END DO
-            CALL memLS_COMMUV(lhs, dof, v)
+            CALL FSILS_COMMUV(lhs, dof, v)
 
             DO a=1, nNo
                Ac = lhs%face(faIn)%glob(a)
@@ -200,16 +200,16 @@
 
 !====================================================================
 
-      SUBROUTINE memLS_BC_FREE (lhs, faIn)
+      SUBROUTINE FSILS_BC_FREE (lhs, faIn)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: faIn
 
       IF (.NOT.lhs%face(faIn)%foC) THEN
-         PRINT *, 'memLS: Cannot free a face that is not created yet'
-         STOP "memLS: FATAL ERROR"
+         PRINT *, 'FSILS: Cannot free a face that is not created yet'
+         STOP "FSILS: FATAL ERROR"
       END IF
       lhs%face(faIn)%foC        = .FALSE.
       lhs%face(faIn)%nNo        = 0
@@ -221,5 +221,5 @@
      &   lhs%face(faIn)%valM)
 
       RETURN
-      END SUBROUTINE memLS_BC_FREE
+      END SUBROUTINE FSILS_BC_FREE
 

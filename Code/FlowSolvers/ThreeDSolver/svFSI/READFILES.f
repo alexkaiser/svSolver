@@ -1021,36 +1021,36 @@
       TYPE(eqType), INTENT(INOUT) :: lEq
       TYPE(listType), INTENT(INOUT) :: list
 
-      INTEGER lSolverType, memLSType
+      INTEGER lSolverType, FSILSType
       LOGICAL flag
       CHARACTER(LEN=stdL) ctmp
       TYPE(listType), POINTER :: lPtr, lPL
 
 !     Default LS
       lSolverType = ilsType
-      memLSType   = ilsType
+      FSILSType   = ilsType
       lPL => list%get(ctmp,"LS type")
       IF (ASSOCIATED(lPL)) THEN
          SELECT CASE(TRIM(ctmp))
          CASE('NS')
             lSolverType = lSolver_NS
-            memLSType   = LS_TYPE_NS
+            FSILSType   = LS_TYPE_NS
          CASE('GMRES')
             lSolverType = lSolver_GMRES
-            memLSType   = LS_TYPE_GMRES
+            FSILSType   = LS_TYPE_GMRES
          CASE('CG')
             lSolverType = lSolver_CG
-            memLSType   = LS_TYPE_CG
+            FSILSType   = LS_TYPE_CG
          CASE('BICG')
             lSolverType = lSolver_BICGS
-            memLSType   = LS_TYPE_BICGS
+            FSILSType   = LS_TYPE_BICGS
          CASE DEFAULT
             err = TRIM(list%ping("LS type",lPL))//" Undefined type"
          END SELECT
       END IF
 
       lEq%ls%LS_Type = lSolverType
-         CALL memLS_LS_CREATE(lEq%memLS, memLSType)
+         CALL FSILS_LS_CREATE(lEq%FSILS, FSILSType)
 
 !     Default Preconditioners
       IF (useTrilinosLS) THEN
@@ -1063,8 +1063,8 @@
          lPtr => lPL%get(ctmp, "Preconditioner")
          IF (ASSOCIATED(lPtr)) THEN
             SELECT CASE(TRIM(ctmp))
-            CASE('memLS', 'MEMLS', 'svFSI')
-               lEq%ls%PREC_Type = PREC_MEMLS
+            CASE('fsiLS', 'FSILS', 'svFSI')
+               lEq%ls%PREC_Type = PREC_FSILS
             CASE('Trilinos-Diagonal')
                lEq%ls%PREC_Type = PREC_TRILINOS_DIAGONAL
                useTrilinosLS = .TRUE.
@@ -1103,38 +1103,38 @@
          END IF
 
          lPtr => lPL%get(lEq%ls%mItr,"Max iterations",ll=1)
-         IF (ASSOCIATED(lPtr)) lEq%memLS%RI%mItr = lEq%ls%mItr
+         IF (ASSOCIATED(lPtr)) lEq%FSILS%RI%mItr = lEq%ls%mItr
 
          lPtr => lPL%get(lEq%ls%relTol,"Tolerance",lb=0D0,ub=1D0)
-         IF (ASSOCIATED(lPtr)) lEq%memLS%RI%relTol = lEq%ls%relTol
+         IF (ASSOCIATED(lPtr)) lEq%FSILS%RI%relTol = lEq%ls%relTol
 
          lPtr => lPL%get(lEq%ls%absTol,"Absolute tolerance",
      2      lb=0D0,ub=1D0)
-         IF (ASSOCIATED(lPtr)) lEq%memLS%RI%absTol = lEq%ls%absTol
+         IF (ASSOCIATED(lPtr)) lEq%FSILS%RI%absTol = lEq%ls%absTol
 
          lPtr => lPL%get(lEq%ls%sD,"Krylov space dimension",ll=1)
-         IF (ASSOCIATED(lPtr)) lEq%memLS%RI%sD = lEq%ls%sD
+         IF (ASSOCIATED(lPtr)) lEq%FSILS%RI%sD = lEq%ls%sD
 
          IF (.NOT.useTrilinosLS) THEN
-            lPtr => lPL%get(lEq%memLS%RI%mItr,"Max iterations",ll=1)
-            lPtr => lPL%get(lEq%memLS%GM%mItr,"NS-GM max iterations",
+            lPtr => lPL%get(lEq%FSILS%RI%mItr,"Max iterations",ll=1)
+            lPtr => lPL%get(lEq%FSILS%GM%mItr,"NS-GM max iterations",
      2         ll=1)
-            lPtr => lPL%get(lEq%memLS%CG%mItr,"NS-CG max iterations",
+            lPtr => lPL%get(lEq%FSILS%CG%mItr,"NS-CG max iterations",
      2         ll=1)
 
-            lPtr => lPL%get(lEq%memLS%RI%relTol,"Tolerance",
+            lPtr => lPL%get(lEq%FSILS%RI%relTol,"Tolerance",
      2         lb=0D0,ub=1D0)
-            lPtr => lPL%get(lEq%memLS%GM%relTol,"NS-GM tolerance",
+            lPtr => lPL%get(lEq%FSILS%GM%relTol,"NS-GM tolerance",
      2         lb=0D0,ub=1D0)
-            lPtr => lPL%get(lEq%memLS%CG%relTol,"NS-CG tolerance",
+            lPtr => lPL%get(lEq%FSILS%CG%relTol,"NS-CG tolerance",
      2         lb=0D0,ub=1D0)
 
-            lPtr =>lPL%get(lEq%memLS%RI%absTol,"Absolute tolerance",
+            lPtr =>lPL%get(lEq%FSILS%RI%absTol,"Absolute tolerance",
      2         lb=0D0,ub=1D0)
-            lEq%memLS%GM%absTol = lEq%memLS%RI%absTol
-            lEq%memLS%CG%absTol = lEq%memLS%RI%absTol
+            lEq%FSILS%GM%absTol = lEq%FSILS%RI%absTol
+            lEq%FSILS%CG%absTol = lEq%FSILS%RI%absTol
 
-            lEq%memLS%GM%sD = lEq%memLS%RI%sD
+            lEq%FSILS%GM%sD = lEq%FSILS%RI%sD
          END IF
       END IF
 
@@ -1144,11 +1144,11 @@
 
       IF (useTrilinosLS) THEN
          IF (lSolverType .EQ. lSolver_NS) err =
-     2   "NS solver is not supported with Trilinos or PETSc. Use memLS"
+     2   "NS solver is not supported with Trilinos or PETSc. Use FSILS"
       END IF
 
-      IF (useTrilinosLS .AND. lEq%ls%PREC_Type.EQ.PREC_MEMLS) err =
-     2   "Cannot combine memLS preconditioner with Trilinos"
+      IF (useTrilinosLS .AND. lEq%ls%PREC_Type.EQ.PREC_FSILS) err =
+     2   "Cannot combine FSILS preconditioner with Trilinos"
 
       RETURN
       END SUBROUTINE READLS

@@ -71,11 +71,11 @@ set(FLOWSOLVER_SUBDIRS ${FLOWSOLVER_SUBDIRS} svSolver)
 # svFSI
 #-----------------------------------------------------------------------------
 if(NOT SV_USE_DUMMY_MPI)
-  set(FLOWSOLVER_SUBDIRS ${FLOWSOLVER_SUBDIRS} svMemLS)
+  set(FLOWSOLVER_SUBDIRS ${FLOWSOLVER_SUBDIRS} svFSILS)
   set(FLOWSOLVER_SUBDIRS ${FLOWSOLVER_SUBDIRS} svFSI)
 else()
   message(WARNING "svFSI requires MPI (not dummyMPI) and SV_USE_DUMMY_MPI \
-is set to true. Not compiling svFSI or svMemLS target.")
+is set to true. Not compiling svFSI or svFSILS target.")
 endif()
 
 #-----------------------------------------------------------------------------

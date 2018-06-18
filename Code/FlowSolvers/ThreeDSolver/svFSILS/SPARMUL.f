@@ -48,11 +48,11 @@
 !     vector in neither, one or both dimensions.
 !--------------------------------------------------------------------
 
-      SUBROUTINE memLS_SPARMULVV(lhs, rowPtr, colPtr, dof, K, U, KU)
+      SUBROUTINE FSILS_SPARMULVV(lhs, rowPtr, colPtr, dof, K, U, KU)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: K(dof*dof,lhs%nnz), U(dof,lhs%nNo)
@@ -128,18 +128,18 @@
 !$OMP END PARALLEL DO         
       END SELECT
 
-      CALL memLS_COMMUV(lhs, dof, KU)
+      CALL FSILS_COMMUV(lhs, dof, KU)
 
       RETURN
-      END SUBROUTINE memLS_SPARMULVV
+      END SUBROUTINE FSILS_SPARMULVV
 
 !====================================================================
 
-      SUBROUTINE memLS_SPARMULVS(lhs, rowPtr, colPtr, dof, K, U, KU)
+      SUBROUTINE FSILS_SPARMULVS(lhs, rowPtr, colPtr, dof, K, U, KU)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: K(dof,lhs%nnz), U(dof,lhs%nNo)
@@ -198,18 +198,18 @@
 !$OMP END PARALLEL DO         
       END SELECT
 
-      CALL memLS_COMMUS(lhs, KU)
+      CALL FSILS_COMMUS(lhs, KU)
 
       RETURN
-      END SUBROUTINE memLS_SPARMULVS
+      END SUBROUTINE FSILS_SPARMULVS
 
 !====================================================================
 
-      SUBROUTINE memLS_SPARMULSV(lhs, rowPtr, colPtr, dof, K, U, KU)
+      SUBROUTINE FSILS_SPARMULSV(lhs, rowPtr, colPtr, dof, K, U, KU)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: K(dof,lhs%nnz), U(lhs%nNo)
@@ -272,18 +272,18 @@
 !$OMP END PARALLEL DO         
       END SELECT
 
-      CALL memLS_COMMUV(lhs, dof, KU)
+      CALL FSILS_COMMUV(lhs, dof, KU)
 
       RETURN
-      END SUBROUTINE memLS_SPARMULSV
+      END SUBROUTINE FSILS_SPARMULSV
 
 !====================================================================
 
-      SUBROUTINE memLS_SPARMULSS(lhs, rowPtr, colPtr, K, U, KU)
+      SUBROUTINE FSILS_SPARMULSS(lhs, rowPtr, colPtr, K, U, KU)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
       REAL(KIND=8), INTENT(IN) :: K(lhs%nnz), U(lhs%nNo)
       REAL(KIND=8), INTENT(OUT) :: KU(lhs%nNo)
@@ -301,8 +301,8 @@
       END DO
 !$OMP END PARALLEL DO         
 
-      CALL memLS_COMMUS(lhs, KU)
+      CALL FSILS_COMMUS(lhs, KU)
 
       RETURN
-      END SUBROUTINE memLS_SPARMULSS
+      END SUBROUTINE FSILS_SPARMULSS
 

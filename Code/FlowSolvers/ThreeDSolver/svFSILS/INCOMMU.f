@@ -53,11 +53,11 @@
 !     3 - rTmp {in master} = R          {from master}
 !     4 - R    {in slave}  = rTmp       {from master}
 
-      SUBROUTINE memLS_COMMUV(lhs, dof, R)
+      SUBROUTINE FSILS_COMMUV(lhs, dof, R)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(INOUT) :: R(dof,lhs%nNo)
  
@@ -101,15 +101,15 @@
       END DO
 
       RETURN
-      END SUBROUTINE memLS_COMMUV
+      END SUBROUTINE FSILS_COMMUV
 
 !====================================================================
       
-      SUBROUTINE memLS_COMMUS(lhs, R)
+      SUBROUTINE FSILS_COMMUS(lhs, R)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       REAL(KIND=8), INTENT(INOUT) :: R(lhs%nNo)
       
       INTEGER nReq, i, j, k, ierr, stat(mpsts*lhs%nReq)
@@ -151,5 +151,5 @@
       END DO
 
       RETURN
-      END SUBROUTINE memLS_COMMUS
+      END SUBROUTINE FSILS_COMMUS
       

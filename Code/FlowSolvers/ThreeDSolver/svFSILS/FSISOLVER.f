@@ -51,10 +51,10 @@
       
       SUBROUTINE FSISOLVER(lhs, ls, dof, Val, R, isS)
       
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_subLsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_subLsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: Val(dof*dof,lhs%nnz)
       REAL(KIND=8), INTENT(INOUT) :: R(dof,lhs%nNo)
@@ -62,7 +62,7 @@
  
       LOGICAL flag, GE
       INTEGER nNo, mynNo, i, j, k, n, l
-      REAL(KIND=8) memLS_CPUT, memLS_NORMV, memLS_DOTV, memLS_NCDOTV
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMV, FSILS_DOTV, FSILS_NCDOTV
       REAL(KIND=8) eps, temp
       REAL(KIND=8), ALLOCATABLE :: u(:,:,:), h(:,:), X(:,:), y(:),
      2   c(:), s(:), err(:), unCondU(:,:), v(:,:,:,:), A(:,:), b(:),
@@ -77,9 +77,9 @@
      3   A(2*n,2*n), v(dof,nNo,n,2), b(2*n), xb(2*n), tmpU(dof,nNo,2),
      4   tmp(4*n+1), oldxb(2*n))
        
-      ls%callD  = memLS_CPUT()
+      ls%callD  = FSILS_CPUT()
       ls%suc    = .FALSE.
-      eps       = memLS_NORMV(dof, mynNo, lhs%commu, R)
+      eps       = FSILS_NORMV(dof, mynNo, lhs%commu, R)
       ls%iNorm  = eps
       ls%fNorm  = eps
       eps       = MAX(ls%absTol,ls%relTol*eps)
@@ -95,7 +95,7 @@
          RETURN
       END IF
 
-      err(1)   = memLS_NORMV(dof, mynNo, lhs%commu, R)
+      err(1)   = FSILS_NORMV(dof, mynNo, lhs%commu, R)
       u(:,:,1) = R/err(1)
       i = 0
       DO 
@@ -105,7 +105,7 @@
          
          l = 0
          DO j=1, 2
-            CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, 
+            CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, 
      2         tmpu(:,:,j), v(:,:,i,j))
             CALL ADDBCMUL(lhs, BCOP_TYPE_ADD, dof, tmpu(:,:,j), 
      2         v(:,:,i,j))
@@ -116,25 +116,25 @@
 
             DO k=1, i
                l = l + 1
-               tmp(l) = memLS_NCDOTV(dof, mynNo, v(:,:,k,j), v(:,:,i,j))
+               tmp(l) = FSILS_NCDOTV(dof, mynNo, v(:,:,k,j), v(:,:,i,j))
             END DO
          END DO
          DO k=1, i
             l = l + 1
-            tmp(l) = memLS_NCDOTV(dof, mynNo, v(:,:,k,1), v(:,:,i,2))
+            tmp(l) = FSILS_NCDOTV(dof, mynNo, v(:,:,k,1), v(:,:,i,2))
          END DO
          DO k=1, i-1
             l = l + 1
-            tmp(l) = memLS_NCDOTV(dof, mynNo, v(:,:,i,1), v(:,:,k,2))
+            tmp(l) = FSILS_NCDOTV(dof, mynNo, v(:,:,i,1), v(:,:,k,2))
          END DO
          DO j=1, 2
             l = l + 1
-            tmp(l) = memLS_NCDOTV(dof, mynNo, R, v(:,:,i,j))
+            tmp(l) = FSILS_NCDOTV(dof, mynNo, R, v(:,:,i,j))
          END DO
          u(:,:,i+1) = v(:,:,i,1) + v(:,:,i,2)
 
 !     Computing H
-         CALL memLS_BCASTV(l, tmp, lhs%commu)
+         CALL FSILS_BCASTV(l, tmp, lhs%commu)
          l = 0
          DO k=1, i
             l = l + 1
@@ -165,7 +165,7 @@
          IF (GE(2*n, 2*i, A, xB)) THEN
             oldxB = xB
          ELSE
-            IF(lhs%commu%masF) PRINT *,"memLS: Singular matrix detected"
+            IF(lhs%commu%masF) PRINT *,"FSILS: Singular matrix detected"
             i  = i - 1
             xB = oldxB
             EXIT
@@ -181,9 +181,9 @@ c         print *, sqrt(ls%fnorm)/ls%inorm
 
          DO j=1, i+1
          ! You may simplify this using A
-            h(j,i) = memLS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
+            h(j,i) = FSILS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
          END DO
-            CALL memLS_BCASTV(i+1, h(:,i), lhs%commu)
+            CALL FSILS_BCASTV(i+1, h(:,i), lhs%commu)
             
          DO j=1, i
             CALL OMPSUMV(dof, nNo, -h(j,i), u(:,:,i+1), u(:,:,j))
@@ -220,7 +220,7 @@ c         print *, sqrt(ls%fnorm)/ls%inorm
          R = R + xB(2*j-1)*tmpu(:,:,1) + xB(2*j)*tmpu(:,:,2)
       END DO
       ls%itr   = i
-      ls%callD = memLS_CPUT() - ls%callD
+      ls%callD = FSILS_CPUT() - ls%callD
       ls%dB    = 5D0*LOG(ls%fNorm/ls%dB)
       ls%fNorm = SQRT(ls%fNorm)
 
@@ -271,7 +271,7 @@ c         print *, sqrt(ls%fnorm)/ls%inorm
       IMPLICIT NONE
 
       INTEGER faIn, i, a, Ac, nsd
-      REAL(KIND=8) memLS_NORMV
+      REAL(KIND=8) FSILS_NORMV
       REAL(KIND=8), ALLOCATABLE :: v(:,:)
 
       nsd = dof - 1
@@ -286,7 +286,7 @@ c         print *, sqrt(ls%fnorm)/ls%inorm
                      v(i,Ac) = lhs%face(faIn)%valM(i,a)
                   END DO
                END DO
-               lhs%face(faIn)%nS = memLS_NORMV(nsd, mynNo, lhs%commu,   &
+               lhs%face(faIn)%nS = FSILS_NORMV(nsd, mynNo, lhs%commu,   &
      &            v)**2D0
             ELSE
                lhs%face(faIn)%nS = 0D0

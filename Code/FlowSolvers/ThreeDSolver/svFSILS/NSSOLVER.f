@@ -51,18 +51,18 @@
       
       SUBROUTINE NSSOLVER(lhs, ls, dof, Val, Ri)
       
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_lsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: Val(dof*dof,lhs%nnz)
       REAL(KIND=8), INTENT(INOUT) :: Ri(dof,lhs%nNo)
 
       LOGICAL GE
       INTEGER nNo, nnz, mynNo, i, j, k, iB, iBB, nB, nsd, c
-      REAL(KIND=8) memLS_CPUT, memLS_NORMS, memLS_NORMV, memLS_DOTS,    &
-     &   memLS_DOTV, eps, memLS_NCDOTS, memLS_NCDOTV
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMS, FSILS_NORMV, FSILS_DOTS,    &
+     &   FSILS_DOTV, eps, FSILS_NCDOTS, FSILS_NCDOTV
       REAL(KIND=8), ALLOCATABLE :: U(:,:,:), P(:,:), MU(:,:,:), MP(:,:),&
      &   A(:,:), tmp(:), tmpG(:), B(:), xB(:), oldxB(:), mK(:,:),       &
      &   mG(:,:), mD(:,:), mL(:), Gt(:,:), Rm(:,:), Rc(:), Rmi(:,:), 
@@ -87,15 +87,15 @@
       oldxB       = 0D0
       Rm          = Rmi
       Rc          = Rci
-      eps         = SQRT(memLS_NORMV(nsd, mynNo, lhs%commu, Rm)**2D0    &
-     &            +      memLS_NORMS(     mynNo, lhs%commu, Rc)**2D0)
+      eps         = SQRT(FSILS_NORMV(nsd, mynNo, lhs%commu, Rm)**2D0    &
+     &            +      FSILS_NORMS(     mynNo, lhs%commu, Rc)**2D0)
       ls%RI%iNorm = eps
       ls%RI%fNorm = eps*eps
       ls%CG%callD = 0D0
       ls%GM%callD = 0D0
       ls%CG%itr   = 0
       ls%GM%itr   = 0
-      ls%RI%callD = memLS_CPUT()
+      ls%RI%callD = FSILS_CPUT()
       ls%RI%suc   = .FALSE.
       eps         = MAX(ls%RI%absTol,ls%RI%relTol*eps)
 
@@ -110,40 +110,40 @@
 !        U  = K^-1*Rm
          CALL GMRES(lhs, ls%GM, nsd, mK, Rm, U(:,:,i))                 
 !        P  = D*U
-         CALL memLS_SPARMULVS(lhs, lhs%rowPtr, lhs%colPtr, nsd, mD,     &
+         CALL FSILS_SPARMULVS(lhs, lhs%rowPtr, lhs%colPtr, nsd, mD,     &
      &      U(:,:,i), P(:,i))
 !        P  = Rc - P
          P(:,i) = Rc - P(:,i)                                        
 !        P  = [L + G^t*G]^-1*P
          CALL CGRAD_SCHUR(lhs, ls%CG, nsd, Gt, mG, mL, P(:,i))
 !        MU1 = G*P
-         CALL memLS_SPARMULSV(lhs, lhs%rowPtr, lhs%colPtr, nsd, mG,     &
+         CALL FSILS_SPARMULSV(lhs, lhs%rowPtr, lhs%colPtr, nsd, mG,     &
      &      P(:,i), MU(:,:,iB))
 !        MU2 = Rm - G*P
          MU(:,:,iBB) = Rm - MU(:,:,iB)                               
 !        U  = K^-1*[Rm - G*P]
          CALL GMRES(lhs, ls%GM, nsd, mK, MU(:,:,iBB), U(:,:,i))        
 !        MU2 = K*U
-         CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, nsd, mK,     &
+         CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, nsd, mK,     &
      &      U(:,:,i), MU(:,:,iBB))
          CALL ADDBCMUL(lhs, BCOP_TYPE_ADD, nsd, U(:,:,i), MU(:,:,iBB))
 !        MP1 = L*P
-         CALL memLS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, mL, P(:,i),  &
+         CALL FSILS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, mL, P(:,i),  &
      &      MP(:,iB))
 !        MP2 = D*U
-         CALL memLS_SPARMULVS(lhs, lhs%rowPtr, lhs%colPtr, nsd, mD,     &
+         CALL FSILS_SPARMULVS(lhs, lhs%rowPtr, lhs%colPtr, nsd, mD,     &
      &      U(:,:,i), MP(:,iBB))
 
          c = 0
          DO k=iB, iBB
             DO j=1, k
                c = c + 1
-               tmp(c) = memLS_NCDOTV(nsd, mynNo, MU(:,:,j), MU(:,:,k))  &
-     &                + memLS_NCDOTS(     mynNo, MP(:,j),   MP(:,k))
+               tmp(c) = FSILS_NCDOTV(nsd, mynNo, MU(:,:,j), MU(:,:,k))  &
+     &                + FSILS_NCDOTS(     mynNo, MP(:,j),   MP(:,k))
             END DO
             c = c + 1
-            tmp(c) = memLS_NCDOTV(nsd, mynNo, MU(:,:,k), Rmi)           &
-     &             + memLS_NCDOTS(     mynNo,  MP(:,k),  Rci)
+            tmp(c) = FSILS_NCDOTV(nsd, mynNo, MU(:,:,k), Rmi)           &
+     &             + FSILS_NCDOTS(     mynNo,  MP(:,k),  Rci)
          END DO
          IF (lhs%commu%nTasks .GT. 1) THEN
             CALL MPI_ALLREDUCE(tmp, tmpG, c, mpreal, MPI_SUM,           &
@@ -166,7 +166,7 @@
          IF (GE(nB, iBB, A, xB)) THEN
             oldxB = xB
          ELSE
-            IF(lhs%commu%masF) PRINT *,"memLS: Singular matrix detected"
+            IF(lhs%commu%masF) PRINT *,"FSILS: Singular matrix detected"
             xB = oldxB
             IF (i .GT. 1) THEN
                iB  = iB  - 2
@@ -198,7 +198,7 @@
             Rc = Rc - xB(j)*MP(:,j)
          END DO
       END IF
-      ls%Resc = NINT(1D2*memLS_NORMS(mynNo, lhs%commu, Rc)**2D0/        &
+      ls%Resc = NINT(1D2*FSILS_NORMS(mynNo, lhs%commu, Rc)**2D0/        &
      &   ls%RI%fNorm)
       ls%Resm = 100 - ls%Resc
  
@@ -212,7 +212,7 @@
          Rci = Rci + xB(iB)*P(:,i)
       END DO
 
-      ls%RI%callD = memLS_CPUT() - ls%RI%callD
+      ls%RI%callD = FSILS_CPUT() - ls%RI%callD
       ls%RI%dB    = 5D0*LOG(ls%RI%fNorm/ls%RI%dB)
   
       IF (ls%Resc.LT.0 .OR. ls%Resm.LT.0) THEN
@@ -221,7 +221,7 @@
          ls%RI%db = 0
          ls%RI%fNorm = 0D0
          IF (lhs%commu%masF) THEN
-            PRINT "(A)", "Warning: unexpected behavior in memLS"//      &
+            PRINT "(A)", "Warning: unexpected behavior in FSILS"//      &
      &        " (likely due to the ill-conditioned LHS matrix)"
          END IF
       END IF
@@ -289,8 +289,8 @@
             mL(i)   = tmp(16)
          END DO
       ELSE
-         PRINT *, "memLS: Not defined nsd for DEPART", nsd
-         STOP "memLS: FATAL ERROR"
+         PRINT *, "FSILS: Not defined nsd for DEPART", nsd
+         STOP "FSILS: FATAL ERROR"
       END IF
  
       DO i=1, nNo
@@ -315,7 +315,7 @@
       IMPLICIT NONE
 
       INTEGER faIn, i, a, Ac
-      REAL(KIND=8) memLS_NORMV
+      REAL(KIND=8) FSILS_NORMV
       REAL(KIND=8), ALLOCATABLE :: v(:,:)
 
       ALLOCATE(v(nsd,nNo))
@@ -329,7 +329,7 @@
                      v(i,Ac) = lhs%face(faIn)%valM(i,a)
                   END DO
                END DO
-               lhs%face(faIn)%nS = memLS_NORMV(nsd, mynNo, lhs%commu,   &
+               lhs%face(faIn)%nS = FSILS_NORMV(nsd, mynNo, lhs%commu,   &
      &            v)**2D0
             ELSE
                lhs%face(faIn)%nS = 0D0
@@ -355,7 +355,7 @@
  
       LOGICAL flag
       INTEGER fid, i, j
-      CHARACTER(LEN=*), PARAMETER :: fName = '.memLS_NS.log'
+      CHARACTER(LEN=*), PARAMETER :: fName = '.FSILS_NS.log'
 
       INQUIRE(FILE=fName, EXIST=flag)
 

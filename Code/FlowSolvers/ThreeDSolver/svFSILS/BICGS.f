@@ -49,16 +49,16 @@
 
       SUBROUTINE BICGSS(lhs, ls, K, R)
       
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_subLsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_subLsType), INTENT(INOUT) :: ls
       REAL(KIND=8), INTENT(IN) :: K(lhs%nnz)
       REAL(KIND=8), INTENT(INOUT) :: R(lhs%nNo)
      
       INTEGER nNo, mynNo, i
       REAL(KIND=8) errO, err, alpha, beta, rho, rhoO, omega, eps
-      REAL(KIND=8) memLS_CPUT, memLS_NORMS, memLS_DOTS
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMS, FSILS_DOTS
       REAL(KIND=8), ALLOCATABLE :: P(:), Rh(:), X(:), V(:), S(:), T(:)
 
       nNo = lhs%nNo
@@ -66,9 +66,9 @@
 
       ALLOCATE(P(nNo), Rh(nNo), X(nNo), V(nNo), S(nNo), T(nNo))
       
-      ls%callD = memLS_CPUT()
+      ls%callD = FSILS_CPUT()
       ls%suc   = .FALSE.
-      err      = memLS_NORMS(mynNo, lhs%commu, R)
+      err      = FSILS_NORMS(mynNo, lhs%commu, R)
       ls%iNorm = err
       errO     = err
       eps      = MAX(ls%absTol,ls%relTol*err)
@@ -83,18 +83,18 @@
             ls%suc = .TRUE.
             EXIT
          END IF
-         CALL memLS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, K, P, V)
-         alpha = rho/memLS_DOTS(mynNo, lhs%commu, Rh, V)
+         CALL FSILS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, K, P, V)
+         alpha = rho/FSILS_DOTS(mynNo, lhs%commu, Rh, V)
          S     = R - alpha*V
-         CALL memLS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, K, S, T)
-         omega = memLS_NORMS(mynNo, lhs%commu, T)
-         omega = memLS_DOTS(mynNo, lhs%commu, T, S)/(omega*omega)
+         CALL FSILS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, K, S, T)
+         omega = FSILS_NORMS(mynNo, lhs%commu, T)
+         omega = FSILS_DOTS(mynNo, lhs%commu, T, S)/(omega*omega)
          X     = X + alpha*P + omega*S
          R     = S - omega*T
          errO  = err
-         err   = memLS_NORMS(mynNo, lhs%commu, R)
+         err   = FSILS_NORMS(mynNo, lhs%commu, R)
          rhoO  = rho
-         rho   = memLS_DOTS(mynNo, lhs%commu, R, Rh)
+         rho   = FSILS_DOTS(mynNo, lhs%commu, R, Rh)
          beta  = rho*alpha/(rhoO*omega)
          P     = R + beta*(P - omega*V)
       END DO
@@ -102,7 +102,7 @@
       R        = X
       ls%itr   = i - 1
       ls%fNorm = err
-      ls%callD = memLS_CPUT() - ls%callD
+      ls%callD = FSILS_CPUT() - ls%callD
       IF (errO .LT. EPSILON(errO)) THEN
          ls%dB = 0D0
       ELSE
@@ -115,17 +115,17 @@
        
       SUBROUTINE BICGSV(lhs, ls, dof, K, R)
       
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_subLsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_subLsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: K(dof*dof,lhs%nnz)
       REAL(KIND=8), INTENT(INOUT) :: R(dof,lhs%nNo)
      
       INTEGER nNo, mynNo, i
       REAL(KIND=8) errO, err, alpha, beta, rho, rhoO, omega, eps
-      REAL(KIND=8) memLS_CPUT, memLS_NORMV, memLS_DOTV
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMV, FSILS_DOTV
       REAL(KIND=8), ALLOCATABLE :: P(:,:), Rh(:,:), X(:,:), V(:,:),     &
      &   S(:,:), T(:,:)
 
@@ -135,9 +135,9 @@
       ALLOCATE(P(dof,nNo), Rh(dof,nNo), X(dof,nNo), V(dof,nNo),         &
      &   S(dof,nNo), T(dof,nNo))
       
-      ls%callD = memLS_CPUT()
+      ls%callD = FSILS_CPUT()
       ls%suc   = .FALSE.
-      err      = memLS_NORMV(dof, mynNo, lhs%commu, R)
+      err      = FSILS_NORMV(dof, mynNo, lhs%commu, R)
       errO     = err
       ls%iNorm = err
       eps      = MAX(ls%absTol,ls%relTol*err)
@@ -152,18 +152,18 @@
             ls%suc = .TRUE.
             EXIT
          END IF
-         CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, K, P, V)
-         alpha = rho/memLS_DOTV(dof, mynNo, lhs%commu, Rh, V)
+         CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, K, P, V)
+         alpha = rho/FSILS_DOTV(dof, mynNo, lhs%commu, Rh, V)
          S     = R - alpha*V
-         CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, K, S, T)
-         omega = memLS_NORMV(dof, mynNo, lhs%commu, T)
-         omega = memLS_DOTV(dof, mynNo, lhs%commu, T, S)/(omega*omega)
+         CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, K, S, T)
+         omega = FSILS_NORMV(dof, mynNo, lhs%commu, T)
+         omega = FSILS_DOTV(dof, mynNo, lhs%commu, T, S)/(omega*omega)
          X     = X + alpha*P + omega*S
          R     = S - omega*T
          errO  = err
-         err   = memLS_NORMV(dof, mynNo, lhs%commu, R)
+         err   = FSILS_NORMV(dof, mynNo, lhs%commu, R)
          rhoO  = rho
-         rho   = memLS_DOTV(dof, mynNo, lhs%commu, R, Rh)
+         rho   = FSILS_DOTV(dof, mynNo, lhs%commu, R, Rh)
          beta  = rho*alpha/(rhoO*omega)
          P     = R + beta*(P - omega*V)
       END DO
@@ -171,7 +171,7 @@
       R        = X
       ls%itr   = i - 1
       ls%fNorm = err
-      ls%callD = memLS_CPUT() - ls%callD
+      ls%callD = FSILS_CPUT() - ls%callD
       IF (errO .LT. EPSILON(errO)) THEN
          ls%dB = 0D0
       ELSE

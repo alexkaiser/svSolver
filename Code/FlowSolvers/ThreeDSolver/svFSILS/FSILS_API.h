@@ -49,170 +49,170 @@
 !--------------------------------------------------------------------
 
       INTERFACE
-         SUBROUTINE memLS_COMMU_CREATE(commu, commi)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_commuType), INTENT(INOUT) :: commu
+         SUBROUTINE FSILS_COMMU_CREATE(commu, commi)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_commuType), INTENT(INOUT) :: commu
             INTEGER, INTENT(IN) :: commi
-         END SUBROUTINE memLS_COMMU_CREATE
-         SUBROUTINE memLS_COMMU_FREE(commu)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_commuType), INTENT(INOUT) :: commu
-         END SUBROUTINE memLS_COMMU_FREE
+         END SUBROUTINE FSILS_COMMU_CREATE
+         SUBROUTINE FSILS_COMMU_FREE(commu)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_commuType), INTENT(INOUT) :: commu
+         END SUBROUTINE FSILS_COMMU_FREE
 
-         SUBROUTINE memLS_LHS_CREATE(lhs, commu, gnNo, nNo, nnz,        &
+         SUBROUTINE FSILS_LHS_CREATE(lhs, commu, gnNo, nNo, nnz,        &
      &      gNodes, rowPtr, colPtr, nFaces)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-            TYPE(memLS_commuType), INTENT(IN) :: commu
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+            TYPE(FSILS_commuType), INTENT(IN) :: commu
             INTEGER, INTENT(IN) :: gnNo, nNo, nnz
             INTEGER, INTENT(IN) :: gNodes(nNo), rowPtr(nNo+1),          &
      &         colPtr(nnz)
             INTEGER, INTENT(IN) :: nFaces
-         END SUBROUTINE memLS_LHS_CREATE
+         END SUBROUTINE FSILS_LHS_CREATE
          SUBROUTINE external_LHS_CREATE(lhs, commu, gnNo, nNo,          &
      &      gNodes, nFaces)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-            TYPE(memLS_commuType), INTENT(IN) :: commu
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+            TYPE(FSILS_commuType), INTENT(IN) :: commu
             INTEGER, INTENT(IN) :: gnNo, nNo
             INTEGER, INTENT(IN) :: gNodes(nNo)
             INTEGER, INTENT(IN) :: nFaces
          END SUBROUTINE external_LHS_CREATE
-         SUBROUTINE memLS_LHS_FREE(lhs)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-         END SUBROUTINE memLS_LHS_FREE
+         SUBROUTINE FSILS_LHS_FREE(lhs)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+         END SUBROUTINE FSILS_LHS_FREE
 
-         SUBROUTINE memLS_LS_CREATE(ls, LS_type, relTol, absTol, maxItr,&
+         SUBROUTINE FSILS_LS_CREATE(ls, LS_type, relTol, absTol, maxItr,&
      &      dimKry, relTolIn, absTolIn, maxItrIn)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lsType), INTENT(INOUT) :: ls
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lsType), INTENT(INOUT) :: ls
             INTEGER, INTENT(IN) :: LS_type
             REAL(KIND=8), INTENT(IN), OPTIONAL :: relTol, absTol,       &
      &         relTolIn(2), absTolIn(2)
             INTEGER, INTENT(IN), OPTIONAL :: maxItr, dimKry, maxItrIn(2)
-         END SUBROUTINE memLS_LS_CREATE
-         SUBROUTINE memLS_LS_FREE(ls)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lsType), INTENT(INOUT) :: ls
-         END SUBROUTINE memLS_LS_FREE
+         END SUBROUTINE FSILS_LS_CREATE
+         SUBROUTINE FSILS_LS_FREE(ls)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lsType), INTENT(INOUT) :: ls
+         END SUBROUTINE FSILS_LS_FREE
 
-         SUBROUTINE memLS_BC_CREATE(lhs, faIn, nNo, dof, BC_type,       &
+         SUBROUTINE FSILS_BC_CREATE(lhs, faIn, nNo, dof, BC_type,       &
      &         gNodes, Val)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             INTEGER, INTENT(IN) :: faIn, nNo, dof
             INTEGER, INTENT(IN) :: BC_type
             INTEGER, INTENT(IN) :: gNodes(nNo)
             REAL(KIND=8), INTENT(IN), OPTIONAL :: Val(dof,nNo)
-         END SUBROUTINE memLS_BC_CREATE
-         SUBROUTINE memLS_BC_FREE(lhs, faIn)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+         END SUBROUTINE FSILS_BC_CREATE
+         SUBROUTINE FSILS_BC_FREE(lhs, faIn)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             INTEGER, INTENT(IN) :: faIn
-         END SUBROUTINE memLS_BC_FREE
+         END SUBROUTINE FSILS_BC_FREE
 
-         SUBROUTINE memLS_SOLVE (lhs, ls, dof, Ri, Val, isS, incL, res)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-            TYPE(memLS_lsType), INTENT(INOUT) :: ls
+         SUBROUTINE FSILS_SOLVE (lhs, ls, dof, Ri, Val, isS, incL, res)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+            TYPE(FSILS_lsType), INTENT(INOUT) :: ls
             INTEGER, INTENT(IN) :: dof
             REAL(KIND=8), INTENT(INOUT) :: Ri(dof,lhs%nNo)
             REAL(KIND=8), INTENT(IN) :: Val(dof*dof,lhs%nnz)
             LOGICAL, INTENT(IN), OPTIONAL :: isS(lhs%nNo)
             INTEGER, INTENT(IN), OPTIONAL :: incL(lhs%nFaces)
             REAL(KIND=8), INTENT(IN), OPTIONAL :: res(lhs%nFaces)
-         END SUBROUTINE memLS_SOLVE
+         END SUBROUTINE FSILS_SOLVE
       END INTERFACE
 
-      INTERFACE memLS_INP
-         FUNCTION memLS_DOTV(dof, nNo, commu, U, V)
-            INCLUDE "memLS_STRUCT.h"
+      INTERFACE FSILS_INP
+         FUNCTION FSILS_DOTV(dof, nNo, commu, U, V)
+            INCLUDE "FSILS_STRUCT.h"
             INTEGER, INTENT(IN) :: dof, nNo
-            TYPE(memLS_commuType), INTENT(IN) :: commu
+            TYPE(FSILS_commuType), INTENT(IN) :: commu
             REAL(KIND=8), INTENT(IN) :: V(dof,nNo), U(dof,nNo)
-            REAL(KIND=8) memLS_DOTV
-         END FUNCTION memLS_DOTV
-         FUNCTION memLS_DOTS(nNo, commu, U, V)
-            INCLUDE "memLS_STRUCT.h"
+            REAL(KIND=8) FSILS_DOTV
+         END FUNCTION FSILS_DOTV
+         FUNCTION FSILS_DOTS(nNo, commu, U, V)
+            INCLUDE "FSILS_STRUCT.h"
             INTEGER, INTENT(IN) :: nNo
-            TYPE(memLS_commuType), INTENT(IN) :: commu
+            TYPE(FSILS_commuType), INTENT(IN) :: commu
             REAL(KIND=8), INTENT(IN) :: V(nNo), U(nNo)
-            REAL(KIND=8) memLS_DOTS
-         END FUNCTION memLS_DOTS
-         FUNCTION memLS_NORMV(dof, nNo, commu, U)
-            INCLUDE "memLS_STRUCT.h"
+            REAL(KIND=8) FSILS_DOTS
+         END FUNCTION FSILS_DOTS
+         FUNCTION FSILS_NORMV(dof, nNo, commu, U)
+            INCLUDE "FSILS_STRUCT.h"
             INTEGER, INTENT(IN) :: dof, nNo
-            TYPE(memLS_commuType), INTENT(IN) :: commu
+            TYPE(FSILS_commuType), INTENT(IN) :: commu
             REAL(KIND=8), INTENT(IN) :: U(dof,nNo)
-            REAL(KIND=8) memLS_NORMV
-         END FUNCTION memLS_NORMV
-         FUNCTION memLS_NORMS(nNo, commu, U)
-            INCLUDE "memLS_STRUCT.h"
+            REAL(KIND=8) FSILS_NORMV
+         END FUNCTION FSILS_NORMV
+         FUNCTION FSILS_NORMS(nNo, commu, U)
+            INCLUDE "FSILS_STRUCT.h"
             INTEGER, INTENT(IN) :: nNo
-            TYPE(memLS_commuType), INTENT(IN) :: commu
+            TYPE(FSILS_commuType), INTENT(IN) :: commu
             REAL(KIND=8), INTENT(IN) :: U(nNo)
-            REAL(KIND=8) memLS_NORMS
-         END FUNCTION memLS_NORMS
-      END INTERFACE memLS_INP
+            REAL(KIND=8) FSILS_NORMS
+         END FUNCTION FSILS_NORMS
+      END INTERFACE FSILS_INP
 
-      INTERFACE memLS_COMMU
-         SUBROUTINE memLS_COMMUV(lhs, dof, R)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      INTERFACE FSILS_COMMU
+         SUBROUTINE FSILS_COMMUV(lhs, dof, R)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             INTEGER, INTENT(IN) :: dof
             REAL(KIND=8), INTENT(INOUT) :: R(dof,lhs%nNo)
-         END SUBROUTINE memLS_COMMUV
-         SUBROUTINE memLS_COMMUS(lhs, R)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+         END SUBROUTINE FSILS_COMMUV
+         SUBROUTINE FSILS_COMMUS(lhs, R)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             REAL(KIND=8), INTENT(INOUT) :: R(lhs%nNo)
-         END SUBROUTINE memLS_COMMUS
-      END INTERFACE memLS_COMMU
+         END SUBROUTINE FSILS_COMMUS
+      END INTERFACE FSILS_COMMU
 
-      INTERFACE memLS_SPARMUL
-         SUBROUTINE memLS_SPARMULVV(lhs, rowPtr, colPtr, dof, K, U, KU)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      INTERFACE FSILS_SPARMUL
+         SUBROUTINE FSILS_SPARMULVV(lhs, rowPtr, colPtr, dof, K, U, KU)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
             INTEGER, INTENT(IN) :: dof
             REAL(KIND=8), INTENT(IN) :: K(dof*dof,lhs%nnz),             &
      &         U(dof,lhs%nNo)
             REAL(KIND=8), INTENT(OUT) :: KU(dof,lhs%nNo)
-         END SUBROUTINE memLS_SPARMULVV
-         SUBROUTINE memLS_SPARMULVS(lhs, rowPtr, colPtr, dof, K, U, KU)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+         END SUBROUTINE FSILS_SPARMULVV
+         SUBROUTINE FSILS_SPARMULVS(lhs, rowPtr, colPtr, dof, K, U, KU)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
             INTEGER, INTENT(IN) :: dof
             REAL(KIND=8), INTENT(IN) :: K(dof,lhs%nnz), U(dof,lhs%nNo)
             REAL(KIND=8), INTENT(OUT) :: KU(lhs%nNo)
-         END SUBROUTINE memLS_SPARMULVS
-         SUBROUTINE memLS_SPARMULSV(lhs, rowPtr, colPtr, dof, K, U, KU)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+         END SUBROUTINE FSILS_SPARMULVS
+         SUBROUTINE FSILS_SPARMULSV(lhs, rowPtr, colPtr, dof, K, U, KU)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
             INTEGER, INTENT(IN) :: dof
             REAL(KIND=8), INTENT(IN) :: K(dof,lhs%nnz), U(lhs%nNo)
             REAL(KIND=8), INTENT(OUT) :: KU(dof,lhs%nNo)
-         END SUBROUTINE memLS_SPARMULSV
-         SUBROUTINE memLS_SPARMULSS(lhs, rowPtr, colPtr, K, U, KU)
-            INCLUDE "memLS_STRUCT.h"
-            TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+         END SUBROUTINE FSILS_SPARMULSV
+         SUBROUTINE FSILS_SPARMULSS(lhs, rowPtr, colPtr, K, U, KU)
+            INCLUDE "FSILS_STRUCT.h"
+            TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
             INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz)
             REAL(KIND=8), INTENT(IN) :: K(lhs%nnz), U(lhs%nNo)
             REAL(KIND=8), INTENT(OUT) :: KU(lhs%nNo)
-         END SUBROUTINE memLS_SPARMULSS
-      END INTERFACE memLS_SPARMUL
+         END SUBROUTINE FSILS_SPARMULSS
+      END INTERFACE FSILS_SPARMUL
 
-      INTERFACE memLS_CPUT
-         FUNCTION memLS_CPUT()
-            REAL(KIND=8) memLS_CPUT
-         END FUNCTION memLS_CPUT
-      END INTERFACE memLS_CPUT
+      INTERFACE FSILS_CPUT
+         FUNCTION FSILS_CPUT()
+            REAL(KIND=8) FSILS_CPUT
+         END FUNCTION FSILS_CPUT
+      END INTERFACE FSILS_CPUT
 
-      INTERFACE memLS_HRCPUT
-         FUNCTION memLS_HRCPUT()
-            REAL(KIND=8) memLS_HRCPUT
-         END FUNCTION memLS_HRCPUT
-      END INTERFACE memLS_HRCPUT
+      INTERFACE FSILS_HRCPUT
+         FUNCTION FSILS_HRCPUT()
+            REAL(KIND=8) FSILS_HRCPUT
+         END FUNCTION FSILS_HRCPUT
+      END INTERFACE FSILS_HRCPUT

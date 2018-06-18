@@ -47,21 +47,21 @@
 !     This is to construct the structure for LS.
 !--------------------------------------------------------------------
 
-      SUBROUTINE memLS_LS_CREATE(ls, LS_type, relTol, absTol, maxItr,   &
+      SUBROUTINE FSILS_LS_CREATE(ls, LS_type, relTol, absTol, maxItr,   &
      &   dimKry, relTolIn, absTolIn, maxItrIn)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: LS_type
       REAL(KIND=8), INTENT(IN), OPTIONAL :: relTol, absTol, relTolIn(2),&
      &   absTolIn(2)
       INTEGER, INTENT(IN), OPTIONAL :: maxItr, dimKry, maxItrIn(2)
 
       IF (ls%foC) THEN
-         PRINT *, "memLS: LS is not free You may use memLS_LS_FREE to", &
+         PRINT *, "FSILS: LS is not free You may use FSILS_LS_FREE to", &
      &      " free this structure"
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       ls%foC     = .TRUE.
@@ -87,8 +87,8 @@
             ls%RI%reltol = 1D-2
             ls%RI%mItr   = 500
          CASE DEFAULT
-            PRINT *, 'memLS: LS_TYPE is not defined'
-            STOP "memLS: FATAL ERROR"
+            PRINT *, 'FSILS: LS_TYPE is not defined'
+            STOP "FSILS: FATAL ERROR"
       END SELECT
       ls%RI%absTol = 1D-10
       ls%GM%absTol = 1D-10
@@ -116,23 +116,23 @@
       END IF
 
       RETURN
-      END SUBROUTINE memLS_LS_CREATE
+      END SUBROUTINE FSILS_LS_CREATE
 
 !====================================================================
 
-      SUBROUTINE memLS_LS_FREE (ls)
+      SUBROUTINE FSILS_LS_FREE (ls)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lsType), INTENT(INOUT) :: ls
 
       IF (.NOT.ls%foC) THEN
-         PRINT *, 'memLS: LS is not created yet to be freed'
-         STOP "memLS: FATAL ERROR"
+         PRINT *, 'FSILS: LS is not created yet to be freed'
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       ls%foC  = .FALSE.
 
       RETURN
-      END SUBROUTINE memLS_LS_FREE
+      END SUBROUTINE FSILS_LS_FREE
 

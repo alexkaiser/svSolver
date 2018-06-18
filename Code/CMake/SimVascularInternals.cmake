@@ -17,7 +17,7 @@ set(SV_LIBS
   POSTSOLVER
   PRESOLVER
   SVLS
-  SVMEMLS
+  SVFSILS
   SOLVERIO)
 
 foreach(lib ${SV_LIBS})

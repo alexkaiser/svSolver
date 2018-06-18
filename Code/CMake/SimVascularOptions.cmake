@@ -99,11 +99,11 @@ if(SV_USE_SVLS)
 endif()
 set(SVLS_BUILD_TYPE "Source")
 
-option(SV_USE_SVMEMLS "Use svMemLS as an additional linear solver" ON )
-if(SV_USE_SVMEMLS)
-  set(USE_SVMEMLS 1)
+option(SV_USE_SVFSILS "Use svFSILS as an additional linear solver" ON )
+if(SV_USE_SVFSILS)
+  set(USE_SVFSILS 1)
 endif()
-set(SVMEMLS_BUILD_TYPE "Source")
+set(SVFSILS_BUILD_TYPE "Source")
 
 option(SV_USE_LESLIB "Use leslib as linear solver" OFF )
 if(SV_USE_LESLIB)
@@ -123,7 +123,7 @@ enable_language(Fortran)
 if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   # svsolver requires -ffixed-line-length-132 but
   # svFSI does not compile with this flag
-  # reset flags for svMemLS and svFSI in their local CMakeLists
+  # reset flags for svFSILS and svFSI in their local CMakeLists
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -ffixed-line-length-132 -cpp")
 else()
   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -132 -fpp")

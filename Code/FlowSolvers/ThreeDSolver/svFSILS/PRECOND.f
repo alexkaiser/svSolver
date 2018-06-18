@@ -49,9 +49,9 @@
 
       SUBROUTINE PRECOND(lhs, rowPtr, colPtr, diagPtr, dof, Val, R, W)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
       INTEGER, INTENT(IN) :: rowPtr(2,lhs%nNo), colPtr(lhs%nnz),        &
      &   diagPtr(lhs%nNo)
       INTEGER, INTENT(IN) :: dof
@@ -99,7 +99,7 @@
          END DO
       END SELECT
 
-      CALL memLS_COMMUV(lhs, dof, W)
+      CALL FSILS_COMMUV(lhs, dof, W)
 !     Accounding for Dirichlet BC and inversing W = W^{-1/2}
       
       DO Ac=1, nNo

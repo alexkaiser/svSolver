@@ -1,14 +1,14 @@
       SUBROUTINE PCGMRES(lhs, ls, dof, Val, R)
-      INCLUDE "memLS_STD.h"
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_lsType), INTENT(INOUT) :: ls
+      INCLUDE "FSILS_STD.h"
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: Val(dof*dof,lhs%nnz)
       REAL(KIND=8), INTENT(INOUT) :: R(dof,lhs%nNo)
  
       LOGICAL flag
       INTEGER nNo, mynNo, i, j, k, l, nsd, sD
-      REAL(KIND=8) memLS_CPUT, memLS_NORMV, memLS_DOTV, memLS_NCDOTV
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMV, FSILS_DOTV, FSILS_NCDOTV
       REAL(KIND=8) eps, tmp
       REAL(KIND=8), ALLOCATABLE :: u(:,:,:), h(:,:), X(:,:), y(:), c(:),&
      &   s(:), err(:), Ua(:,:)
@@ -25,9 +25,9 @@
       ALLOCATE(h(sD+1,sD), u(dof,nNo,sD+1), X(dof,nNo),
      &   y(sD), c(sD), s(sD), err(sD+1), Ua(dof,nNo))
        
-      ls%RI%callD  = memLS_CPUT()
+      ls%RI%callD  = FSILS_CPUT()
       ls%RI%suc    = .FALSE.
-      eps       = memLS_NORMV(dof, mynNo, lhs%commu, R)
+      eps       = FSILS_NORMV(dof, mynNo, lhs%commu, R)
       ls%RI%iNorm  = eps
       ls%RI%fNorm  = eps
       eps       = MAX(ls%RI%absTol,ls%RI%relTol*eps)
@@ -54,16 +54,16 @@
          CALL DOMUL(X, u(:,:,1), .false.)
 
          u(:,:,1) = R - u(:,:,1)
-         err(1)   = memLS_NORMV(dof, mynNo, lhs%commu, u(:,:,1))
+         err(1)   = FSILS_NORMV(dof, mynNo, lhs%commu, u(:,:,1))
          u(:,:,1) = u(:,:,1)/err(1)
          DO i=1, sD
             ls%RI%itr = ls%RI%itr + 1
             CALL DOMUL(u(:,:,i),u(:,:,i+1),.false.)
 
             DO j=1, i+1
-               h(j,i) = memLS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
+               h(j,i) = FSILS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
             END DO
-            CALL memLS_BCASTV(i+1, h(:,i), lhs%commu)
+            CALL FSILS_BCASTV(i+1, h(:,i), lhs%commu)
             
             DO j=1, i
                CALL OMPSUMV(dof, nNo, -h(j,i), u(:,:,i+1), u(:,:,j))
@@ -109,7 +109,7 @@
          IF (ls%RI%suc) EXIT
       END DO
       CALL DOMUL(X,R,.true.)
-      ls%RI%callD = memLS_CPUT() - ls%RI%callD
+      ls%RI%callD = FSILS_CPUT() - ls%RI%callD
       ls%RI%dB    = 1D1*LOG(ls%RI%fNorm/ls%RI%dB)
 
       RETURN
@@ -127,13 +127,13 @@
 !     Um = K^-1*Xm
       CALL GMRES(lhs, ls%GM, nsd, mK, Xm, Um)                 
 !     Uc = D*Um
-      CALL memLS_SPARMULVS(lhs, lhs%rowPtr, lhs%colPtr, nsd, mD, Um, Uc)
+      CALL FSILS_SPARMULVS(lhs, lhs%rowPtr, lhs%colPtr, nsd, mD, Um, Uc)
 !     Uc = Xc - Uc
       Uc = Xc - Uc                                   
 !     Uc = [L + G^t*G]^-1*Uc
       CALL CGRAD_SCHUR(lhs, ls%CG, nsd, Gt, mG, mL, Uc)
 !     Um = G*Uc
-      CALL memLS_SPARMULSV(lhs, lhs%rowPtr, lhs%colPtr, nsd, mG, Uc, Um)
+      CALL FSILS_SPARMULSV(lhs, lhs%rowPtr, lhs%colPtr, nsd, mG, Uc, Um)
 !     Xm = Xm - Um
       Xm = Xm - Um
 !     Um = K^-1*Xm
@@ -155,7 +155,7 @@
          ua = x
       end if
 
-      CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, Ua, R)
+      CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, Ua, R)
       CALL ADDBCMUL(lhs, BCOP_TYPE_ADD, dof, Ua, R)
 
       IF (ANY(lhs%face%coupledFlag).AND.flag) THEN
@@ -170,7 +170,7 @@
       IMPLICIT NONE
 
       INTEGER faIn, i, a, Ac, nsd
-      REAL(KIND=8) memLS_NORMV
+      REAL(KIND=8) FSILS_NORMV
       REAL(KIND=8), ALLOCATABLE :: v(:,:)
 
       nsd = dof -  1
@@ -185,7 +185,7 @@
                      v(i,Ac) = lhs%face(faIn)%valM(i,a)
                   END DO
                END DO
-               lhs%face(faIn)%nS = memLS_NORMV(nsd, mynNo, lhs%commu,   &
+               lhs%face(faIn)%nS = FSILS_NORMV(nsd, mynNo, lhs%commu,   &
      &            v)**2D0
             ELSE
                lhs%face(faIn)%nS = 0D0
@@ -256,8 +256,8 @@
             mL(i)   = tmp(16)
          END DO
       ELSE
-         PRINT *, "memLS: Not defined nsd for DEPART", nsd
-         STOP "memLS: FATAL ERROR"
+         PRINT *, "FSILS: Not defined nsd for DEPART", nsd
+         STOP "FSILS: FATAL ERROR"
       END IF
  
       DO i=1, nNo

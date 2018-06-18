@@ -44,7 +44,7 @@
  *  MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
  *--------------------------------------------------------------------
- *  The data structures used in memLS.
+ *  The data structures used in FSILS.
  *--------------------------------------------------------------------
  */
 //     Some defenitions
@@ -65,7 +65,7 @@ typedef struct {
    int tF;                          // Task in FORTRAN indexing (USE)
    int nTasks;                      // Total number of tasks    (USE)
    MPI_Aint comm;                   // MPI communicator         (IN)
-} memLS_commuType;
+} FSILS_commuType;
 /*
 //     LHS matrix related data
 typedef struct {
@@ -82,7 +82,7 @@ typedef struct {
    double res;// = 0D0;       // Neu: P = res*Q                 (IN)
    double **val;           // nodal Sai for Neu              (IN)
    double **valM;          // Neu W*Sai                      (TMP)
-} memLS_faceType;
+} FSILS_faceType;
 
 typedef struct {
    int ptr;       // Pointer to start of data for commu (only 2 proc shared points)
@@ -93,7 +93,7 @@ typedef struct {
    int reserved;  // Only for data alignment
    int *blPtr;    // Pointer to beggining of each block (for 3 < proc shared points)
    int *blN;      // Length of each block (for 3 < proc shared points)
-} memLS_cSType;
+} FSILS_cSType;
 
 typedef struct {
    int foC;// = false;        // Free or created                (USE)
@@ -106,10 +106,10 @@ typedef struct {
    int **rowPtr;           // Row pointer                 (USE)
    int *diagPt;            // Diagonal pointer            (USE)
    int *map;               // Mapping of nodes            (USE)
-   memLS_commuType commu;
-   memLS_cSType *cS;
-   memLS_faceType *face;
-} memLS_lhsType;
+   FSILS_commuType commu;
+   FSILS_cSType *cS;
+   FSILS_faceType *face;
+} FSILS_lhsType;
 */
 //     LS related structures
 typedef struct {
@@ -127,14 +127,14 @@ typedef struct {
    double fNorm;  // Final norm of residual      (OUT)
    double dB;     // Res. rduction in last itr.  (OUT)
    double callD;  // Calling duration            (OUT)
-} memLS_subLsType;
+} FSILS_subLsType;
 
 typedef struct {
    int foC;// = false;   // Free of created             (USE)
    int LS_type;            // Which one of LS             (IN)
    int Resm;               // Contribution of mom. res.   (OUT)
    int Resc;               // Contribution of cont. res.  (OUT)
-   memLS_subLsType GM;
-   memLS_subLsType CG;
-   memLS_subLsType RI;
-} memLS_lsType;
+   FSILS_subLsType GM;
+   FSILS_subLsType CG;
+   FSILS_subLsType RI;
+} FSILS_lsType;

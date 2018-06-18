@@ -44,7 +44,7 @@
 !     MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 !
 !--------------------------------------------------------------------
-!     The data structures used in memLS.
+!     The data structures used in FSILS.
 !--------------------------------------------------------------------
 
 !     Some definitions
@@ -56,7 +56,7 @@
 
 
 !     Communication structure
-      TYPE memLS_commuType
+      TYPE FSILS_commuType
          SEQUENCE
 !        Free of created          (USE)
          LOGICAL :: foC = .FALSE.
@@ -74,10 +74,10 @@
          INTEGER comm
 !        Only for data alignment
          INTEGER reserved
-      END TYPE memLS_commuType
+      END TYPE FSILS_commuType
 
 !     LHS matrix related data
-      TYPE memLS_faceType
+      TYPE FSILS_faceType
          SEQUENCE
 !        Free or created                (USE)
          LOGICAL :: foC = .FALSE.
@@ -105,10 +105,10 @@
          REAL(KIND=8), ALLOCATABLE :: val(:,:)
 !        Neu W*Sai                      (TMP)
          REAL(KIND=8), ALLOCATABLE :: valM(:,:)
-      END TYPE memLS_faceType
+      END TYPE FSILS_faceType
 
 !     All following are in (USE)
-      TYPE memLS_cSType
+      TYPE FSILS_cSType
          SEQUENCE
 !        The processor to communicate with
          INTEGER iP
@@ -116,9 +116,9 @@
          INTEGER n
 !        Pointer to the data for commu
          INTEGER, ALLOCATABLE :: ptr(:)
-      END TYPE memLS_cSType
+      END TYPE FSILS_cSType
 
-      TYPE memLS_lhsType
+      TYPE FSILS_lhsType
          SEQUENCE
 !        Free of created                     (USE)
          LOGICAL :: foC = .FALSE.
@@ -144,13 +144,13 @@
          INTEGER, ALLOCATABLE :: diagPtr(:)
 !        Mapping of nodes                    (USE)
          INTEGER, ALLOCATABLE :: map(:)
-         TYPE(memLS_commuType) commu
-         TYPE(memLS_cSType), ALLOCATABLE :: cS(:)
-         TYPE(memLS_faceType), ALLOCATABLE :: face(:)
-      END TYPE memLS_lhsType
+         TYPE(FSILS_commuType) commu
+         TYPE(FSILS_cSType), ALLOCATABLE :: cS(:)
+         TYPE(FSILS_faceType), ALLOCATABLE :: face(:)
+      END TYPE FSILS_lhsType
 
 !     LS related structures
-      TYPE memLS_subLsType
+      TYPE FSILS_subLsType
          SEQUENCE
 !        Successful solving            (OUT)
          LOGICAL suc
@@ -180,9 +180,9 @@
          REAL(KIND=8) dB
 !        Calling duration              (OUT)
          REAL(KIND=8) callD
-      END TYPE memLS_subLsType
+      END TYPE FSILS_subLsType
 
-      TYPE memLS_lsType
+      TYPE FSILS_lsType
          SEQUENCE
 !        Free of created             (USE)
          LOGICAL :: foC = .FALSE.
@@ -192,7 +192,7 @@
          INTEGER Resm
 !        Contribution of cont. res.  (OUT)
          INTEGER Resc
-         TYPE(memLS_subLsType) GM
-         TYPE(memLS_subLsType) CG
-         TYPE(memLS_subLsType) RI
-      END TYPE memLS_lsType
+         TYPE(FSILS_subLsType) GM
+         TYPE(FSILS_subLsType) CG
+         TYPE(FSILS_subLsType) RI
+      END TYPE FSILS_lsType

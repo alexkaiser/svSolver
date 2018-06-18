@@ -39,7 +39,7 @@
       USE CMMOD
       USE CHNLMOD
 
-      INCLUDE "memLS.h"
+      INCLUDE "FSILS.h"
       INCLUDE "cplBC.h"
 
 !--------------------------------------------------------------------
@@ -155,7 +155,7 @@
      3   cModel_reducedHolzapfel = 605
 
 !     Preconditioner definitions
-      INTEGER, PARAMETER :: PREC_NONE = 700, PREC_MEMLS = 701,
+      INTEGER, PARAMETER :: PREC_NONE = 700, PREC_FSILS = 701,
      2   PREC_TRILINOS_DIAGONAL = 702, PREC_TRILINOS_BLOCK_JACOBI = 703,
      3   PREC_TRILINOS_ILU = 704, PREC_TRILINOS_ILUT = 705,
      4   PREC_TRILINOS_IC = 706, PREC_TRILINOS_ICT = 707,
@@ -301,7 +301,7 @@
          INTEGER iFa
 !        The mesh index that corresponds to this BC
          INTEGER iM
-!        Pointer to memLS%bc
+!        Pointer to FSILS%bc
          INTEGER lsPtr
 !        Defined steady value
          REAL(KIND=8) :: g = 0D0
@@ -495,8 +495,8 @@
          CHARACTER(LEN=2) :: sym = "NA"
 !        type of linear solver
          TYPE(lsType) ls
-!        memLS type of linear solver
-         TYPE(memLS_lsType) memLS
+!        FSILS type of linear solver
+         TYPE(FSILS_lsType) FSILS
 !        BCs associated with this equation
          TYPE(bcType), ALLOCATABLE :: bc(:)
 !        domains that this equation must be solved
@@ -605,7 +605,7 @@
       INTEGER gtnNo
 !     Number of equations
       INTEGER nEq
-!     Number of faces in the LHS passed to memLS
+!     Number of faces in the LHS passed to FSILS
       INTEGER nFacesLS
 !     Number of meshes
       INTEGER nMsh
@@ -686,8 +686,8 @@
       TYPE(cplBCType), SAVE :: cplBC
 !     All data related to equations are stored in this container
       TYPE(eqType), ALLOCATABLE :: eq(:)
-!     memLS data structure to produce LHS sparse matrix
-      TYPE(memLS_lhsType) lhs
+!     FSILS data structure to produce LHS sparse matrix
+      TYPE(FSILS_lhsType) lhs
 !     All the meshes are stored in this variable
       TYPE(mshType), ALLOCATABLE :: msh(:)
 !     Input/output to the screen is handled by this structure

@@ -7,7 +7,7 @@ else()
   # may need to reset for intel compiler or others
 endif()
 
-set(lib ${SV_LIB_SVMEMLS_NAME}${SV_MPI_NAME_EXT})
+set(lib ${SV_LIB_SVFSILS_NAME}${SV_MPI_NAME_EXT})
 
 set(FSRCS ADDBCMUL.f
   BCAST.f   

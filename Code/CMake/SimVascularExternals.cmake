@@ -75,9 +75,9 @@ if(SV_USE_SVLS)
   set(SV_USE_MPI ON)
 endif()
 
-# svMemLS
-if(SV_USE_SVMEMLS)
-  set(SVMEMLS_BUILD_TYPE "Source")
+# svFSILS
+if(SV_USE_SVFSILS)
+  set(SVFSILS_BUILD_TYPE "Source")
   set(SV_USE_MPI ON)
 endif()
 

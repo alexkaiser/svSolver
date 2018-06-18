@@ -44,72 +44,59 @@
 !     MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 !
 !--------------------------------------------------------------------
-!     The contribution of coupled BCs is added to the matrix-vector
-!     product operation. Depending on the type of operation (adding the
-!     contribution or compution the PC contribution) different
-!     coefficients are used.
+!     Communication structure is created here.
 !--------------------------------------------------------------------
 
-      SUBROUTINE ADDBCMUL(lhs, op_Type, dof, X, Y)
-
-      INCLUDE "memLS_STD.h"
-
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      INTEGER, INTENT(IN) :: op_type, dof
-      REAL(KIND=8), INTENT(IN) :: X(dof, lhs%nNo)
-      REAL(KIND=8), INTENT(INOUT) :: Y(dof, lhs%nNo)
-
-      INTEGER faIn, i, a, Ac, nsd
-      REAL(KIND=8) S, memLS_DOTV
-      REAL(KIND=8), ALLOCATABLE :: v(:,:), coef(:)
+      SUBROUTINE FSILS_COMMU_CREATE(commu, commi)
       
-      ALLOCATE(coef(lhs%nFaces), v(dof,lhs%nNo))
+      INCLUDE "FSILS_STD.h"
+   
+      TYPE(FSILS_commuType), INTENT(INOUT) :: commu
+      INTEGER, INTENT(IN) :: commi
 
-      IF (op_Type .EQ. BCOP_TYPE_ADD) THEN
-         coef = lhs%face%res
-      ELSE IF(op_Type .EQ. BCOP_TYPE_PRE) THEN
-         coef = -lhs%face%res/(1D0 + lhs%face%res*lhs%face%nS)
-      ELSE
-         PRINT *, "memLS: op_Type is not defined"
-         STOP "memLS: FATAL ERROR"
+      INTEGER ierr
+
+      IF (commu%foC) THEN
+         PRINT *, "FSILS: COMMU is not free, you may use",              &
+     &      " FSILS_COMMU_FREE to free it"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
-      DO faIn=1, lhs%nFaces
-         nsd = MIN(lhs%face(faIn)%dof,dof)
-         IF (lhs%face(faIn)%coupledFlag) THEN
-            IF (lhs%face(faIn)%sharedFlag) THEN
-               v = 0D0
-               DO a=1, lhs%face(faIn)%nNo
-                  Ac = lhs%face(faIn)%glob(a)
-                  DO i=1, nsd
-                     v(i,Ac) = lhs%face(faIn)%valM(i,a)
-                  END DO
-               END DO
-               S = coef(faIn)*memLS_DOTV(dof,lhs%mynNo, lhs%commu, v, X)
-               DO a=1, lhs%face(faIn)%nNo
-                  Ac = lhs%face(faIn)%glob(a)
-                  DO i=1, nsd
-                     Y(i,Ac) = Y(i,Ac) + v(i,Ac)*S
-                  END DO
-               END DO
-            ELSE
-               S = 0D0
-               DO a=1, lhs%face(faIn)%nNo
-                  Ac = lhs%face(faIn)%glob(a)
-                  DO i=1, nsd
-                     S = S + lhs%face(faIn)%valM(i,a)*X(i,Ac)
-                  END DO
-               END DO
-               S = coef(faIn)*S
-               DO a=1, lhs%face(faIn)%nNo
-                  Ac = lhs%face(faIn)%glob(a)
-                  DO i=1, nsd
-                     Y(i,Ac) = Y(i,Ac) + lhs%face(faIn)%valM(i,a)*S
-                  END DO
-               END DO
-            END IF
-         END IF
-      END DO
+!     Some of these parameters are set for sequential version
+      commu%foC    = .TRUE.
+      commu%comm   = commi
+      commu%nTasks = 1
+      commu%task   = 0
+      commu%master = 0
+
+      CALL MPI_COMM_RANK(commi, commu%task, ierr)
+      CALL MPI_COMM_SIZE(commi, commu%nTasks, ierr)
+      CALL MPI_ALLREDUCE(commu%task, commu%master, 1, mpint, MPI_MIN,   &
+     &   commi, ierr)
+      
+      IF (commu%master .NE. 0) THEN
+         STOP "Master ID is not zero - might cause problems"
+      END IF
+
+      commu%masF = .FALSE.
+      commu%tF   = commu%task + 1
+      IF (commu%task .EQ. commu%master) THEN
+         commu%masF = .TRUE.
+      END IF
 
       RETURN
-      END SUBROUTINE ADDBCMUL
+      END SUBROUTINE FSILS_COMMU_CREATE
+
+!====================================================================
+
+      SUBROUTINE FSILS_COMMU_FREE(commu)
+      
+      INCLUDE "FSILS_STD.h"
+   
+      TYPE(FSILS_commuType), INTENT(INOUT) :: commu
+
+      IF (.NOT.commu%foC) STOP 'COMMU is not created yet to be freed'
+      commu%foC  = .FALSE.
+
+      RETURN
+      END SUBROUTINE FSILS_COMMU_FREE

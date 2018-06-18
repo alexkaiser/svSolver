@@ -45,19 +45,19 @@
  *
  *--------------------------------------------------------------------
  *  This is the main header that needs to be included in your solver 
- *  to get access to the memLS_api and data structures
+ *  to get access to the FSILS_api and data structures
  *--------------------------------------------------------------------
  */
 
-#ifndef MEMLS_C_H
-#define MEMLS_C_H
+#ifndef FSILS_C_H
+#define FSILS_C_H
 
 #if defined(__cplusplus)
 extern "C" {
 #endif
 
-#include "memLS_struct_c.h"
-#include "memLS_api_c.h"
+#include "FSILS_struct_c.h"
+#include "FSILS_api_c.h"
 
 #if defined(__cplusplus)
 }

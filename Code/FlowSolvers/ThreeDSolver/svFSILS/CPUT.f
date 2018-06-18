@@ -47,14 +47,14 @@
 !     This function will return the current time in sec.
 !--------------------------------------------------------------------
       
-      FUNCTION memLS_CPUT()
+      FUNCTION FSILS_CPUT()
 
       IMPLICIT NONE
 
       INTEGER timeArray(8), i
       INTEGER, PARAMETER::nD(12)=(/31,28,31,30,31,30,31,31,30,31,30,31/)
 
-      REAL(KIND=8) memLS_CPUT
+      REAL(KIND=8) FSILS_CPUT
 
       CALL DATE_AND_TIME (VALUES=timeArray)
 !     Year and Month
@@ -63,8 +63,8 @@
          timeArray(3) = timeArray(3) + nD(i)
       END DO
 !     In order: day, hr, min, sec, msec
-      memLS_CPUT = timeArray(3)*8.64D4 + timeArray(5)*3.6D3 +           &
+      FSILS_CPUT = timeArray(3)*8.64D4 + timeArray(5)*3.6D3 +           &
      &   timeArray(6)*6D1 + timeArray(7)*1D0 + timeArray(8)*1D-3
 
       RETURN
-      END FUNCTION memLS_CPUT
+      END FUNCTION FSILS_CPUT

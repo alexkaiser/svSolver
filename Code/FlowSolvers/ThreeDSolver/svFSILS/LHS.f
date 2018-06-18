@@ -48,13 +48,13 @@
 !     nodes on different processors.
 !--------------------------------------------------------------------
 
-      SUBROUTINE memLS_LHS_CREATE(lhs, commu, gnNo, nNo, nnz, gNodes,   &
+      SUBROUTINE FSILS_LHS_CREATE(lhs, commu, gnNo, nNo, nnz, gNodes,   &
      &   rowPtr, colPtr, nFaces)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
       INTEGER, INTENT(IN) :: gnNo, nNo, nnz
       INTEGER, INTENT(IN) :: gNodes(nNo), rowPtr(nNo+1), colPtr(nnz)
       INTEGER, INTENT(IN) :: nFaces
@@ -67,9 +67,9 @@
 
 
       IF (lhs%foC) THEN
-         PRINT *, "memLS: LHS is not free You may use memLS_LHS_FREE",  &
+         PRINT *, "FSILS: LHS is not free You may use FSILS_LHS_FREE",  &
      &      " to free this structure"
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       lhs%foC    = .TRUE.
@@ -176,9 +176,9 @@
          END IF
       END DO
       IF (j .NE. lhs%mynNo+1) THEN
-         PRINT *, "memLS: Unexpected behavior", j, lhs%mynNo
+         PRINT *, "FSILS: Unexpected behavior", j, lhs%mynNo
          CALL MPI_FINALIZE(ierr)
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
 !     Having the new ltg pointer, map is constructed
@@ -292,17 +292,17 @@
       DEALLOCATE(aNodes, part, gtlPtr, sCount, disp, ltg)
 
       RETURN
-      END SUBROUTINE memLS_LHS_CREATE
+      END SUBROUTINE FSILS_LHS_CREATE
 
 !====================================================================
 
       SUBROUTINE external_LHS_CREATE(lhs, commu, gnNo, nNo, gNodes,     &
      &   nFaces)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
       INTEGER, INTENT(IN) :: gnNo, nNo
       INTEGER, INTENT(IN) :: gNodes(nNo)
       INTEGER, INTENT(IN) :: nFaces
@@ -314,9 +314,9 @@
      &   sCount(:), disp(:)
 
       IF (lhs%foC) THEN
-         PRINT *, "memLS: LHS is not free You may use memLS_LHS_FREE",  &
+         PRINT *, "FSILS: LHS is not free You may use FSILS_LHS_FREE",  &
      &      " to free this structure"
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       lhs%foC    = .TRUE.
@@ -396,9 +396,9 @@
          END IF
       END DO
       IF (j .NE. lhs%mynNo+1) THEN
-         PRINT *, "memLS: Unexpected behavior", j, lhs%mynNo
+         PRINT *, "FSILS: Unexpected behavior", j, lhs%mynNo
          CALL MPI_FINALIZE(ierr)
-         STOP "memLS: FATAL ERROR"
+         STOP "FSILS: FATAL ERROR"
       END IF
 
 !     Having the new ltg pointer, map is constructed
@@ -494,21 +494,21 @@
       END SUBROUTINE external_LHS_CREATE
 !====================================================================
 
-      SUBROUTINE memLS_LHS_FREE(lhs)
+      SUBROUTINE FSILS_LHS_FREE(lhs)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
 
       INTEGER faIn, i
 
       IF (.NOT.lhs%foC) THEN
-         PRINT *, 'memLS: LHS is not created yet to be freed'
-         STOP "memLS: FATAL ERROR"
+         PRINT *, 'FSILS: LHS is not created yet to be freed'
+         STOP "FSILS: FATAL ERROR"
       END IF
 
       DO faIn = 1, lhs%nFaces
-         IF (lhs%face(faIn)%foC) CALL memLS_BC_FREE(lhs, faIn)
+         IF (lhs%face(faIn)%foC) CALL FSILS_BC_FREE(lhs, faIn)
       END DO
 
       DO i=1, lhs%nReq
@@ -528,27 +528,27 @@
       DEALLOCATE(lhs%map, lhs%face)
 
       RETURN
-      END SUBROUTINE memLS_LHS_FREE
+      END SUBROUTINE FSILS_LHS_FREE
 
 !====================================================================
 
-      SUBROUTINE memLS_LHS_CREATE_C(pLHS, commu, gnNo, nNo, nnz, gNodes,&
+      SUBROUTINE FSILS_LHS_CREATE_C(pLHS, commu, gnNo, nNo, nnz, gNodes,&
      &   rowPtr, colPtr, nFaces)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), POINTER, INTENT(OUT) :: pLHS
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_lhsType), POINTER, INTENT(OUT) :: pLHS
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
       INTEGER, INTENT(IN) :: gnNo, nNo, nnz
       INTEGER, INTENT(IN) :: gNodes(nNo), rowPtr(nNo+1), colPtr(nnz)
       INTEGER, INTENT(IN) :: nFaces
 
-      TYPE(memLS_lhsType), TARGET, SAVE :: lhs
+      TYPE(FSILS_lhsType), TARGET, SAVE :: lhs
 
-      CALL memLS_LHS_CREATE(lhs, commu, gnNo, nNo, nnz, gNodes, rowPtr, &
+      CALL FSILS_LHS_CREATE(lhs, commu, gnNo, nNo, nnz, gNodes, rowPtr, &
      &   colPtr, nFaces)
 
       pLHS => lhs
 
       RETURN
-      END SUBROUTINE memLS_LHS_CREATE_C
+      END SUBROUTINE FSILS_LHS_CREATE_C

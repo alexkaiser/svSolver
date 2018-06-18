@@ -44,19 +44,72 @@
 !     MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 !
 !--------------------------------------------------------------------
-!     Standard headers and variables used in memLS
+!     The contribution of coupled BCs is added to the matrix-vector
+!     product operation. Depending on the type of operation (adding the
+!     contribution or compution the PC contribution) different
+!     coefficients are used.
 !--------------------------------------------------------------------
 
-      USE ISO_FORTRAN_ENV
+      SUBROUTINE ADDBCMUL(lhs, op_Type, dof, X, Y)
+
+      INCLUDE "FSILS_STD.h"
+
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      INTEGER, INTENT(IN) :: op_type, dof
+      REAL(KIND=8), INTENT(IN) :: X(dof, lhs%nNo)
+      REAL(KIND=8), INTENT(INOUT) :: Y(dof, lhs%nNo)
+
+      INTEGER faIn, i, a, Ac, nsd
+      REAL(KIND=8) S, FSILS_DOTV
+      REAL(KIND=8), ALLOCATABLE :: v(:,:), coef(:)
       
-      IMPLICIT NONE
- 
-      INCLUDE "memLS_STRUCT.h"
-      INCLUDE "mpif.h"
+      ALLOCATE(coef(lhs%nFaces), v(dof,lhs%nNo))
 
-      INTEGER, PARAMETER :: mplog  = MPI_LOGICAL, mpint  = MPI_INTEGER, &
-     &   mpreal = MPI_DOUBLE_PRECISION, mpchar = MPI_CHARACTER,         &
-     &   mpsts = MPI_STATUS_SIZE
+      IF (op_Type .EQ. BCOP_TYPE_ADD) THEN
+         coef = lhs%face%res
+      ELSE IF(op_Type .EQ. BCOP_TYPE_PRE) THEN
+         coef = -lhs%face%res/(1D0 + lhs%face%res*lhs%face%nS)
+      ELSE
+         PRINT *, "FSILS: op_Type is not defined"
+         STOP "FSILS: FATAL ERROR"
+      END IF
 
-!     Communication parameters
-      INTEGER, PARAMETER :: stdout = OUTPUT_UNIT
+      DO faIn=1, lhs%nFaces
+         nsd = MIN(lhs%face(faIn)%dof,dof)
+         IF (lhs%face(faIn)%coupledFlag) THEN
+            IF (lhs%face(faIn)%sharedFlag) THEN
+               v = 0D0
+               DO a=1, lhs%face(faIn)%nNo
+                  Ac = lhs%face(faIn)%glob(a)
+                  DO i=1, nsd
+                     v(i,Ac) = lhs%face(faIn)%valM(i,a)
+                  END DO
+               END DO
+               S = coef(faIn)*FSILS_DOTV(dof,lhs%mynNo, lhs%commu, v, X)
+               DO a=1, lhs%face(faIn)%nNo
+                  Ac = lhs%face(faIn)%glob(a)
+                  DO i=1, nsd
+                     Y(i,Ac) = Y(i,Ac) + v(i,Ac)*S
+                  END DO
+               END DO
+            ELSE
+               S = 0D0
+               DO a=1, lhs%face(faIn)%nNo
+                  Ac = lhs%face(faIn)%glob(a)
+                  DO i=1, nsd
+                     S = S + lhs%face(faIn)%valM(i,a)*X(i,Ac)
+                  END DO
+               END DO
+               S = coef(faIn)*S
+               DO a=1, lhs%face(faIn)%nNo
+                  Ac = lhs%face(faIn)%glob(a)
+                  DO i=1, nsd
+                     Y(i,Ac) = Y(i,Ac) + lhs%face(faIn)%valM(i,a)*S
+                  END DO
+               END DO
+            END IF
+         END IF
+      END DO
+
+      RETURN
+      END SUBROUTINE ADDBCMUL

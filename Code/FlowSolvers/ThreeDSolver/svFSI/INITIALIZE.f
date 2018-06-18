@@ -48,7 +48,7 @@
       INTEGER :: iEq, ierr, gnnz, nnz, iDmn
       CHARACTER(LEN=stdL) :: fName
       REAL(KIND=8) :: am
-      TYPE(memLS_commuType) :: communicator
+      TYPE(FSILS_commuType) :: communicator
 
       REAL(KIND=8), ALLOCATABLE, DIMENSION(:,:) :: s
 
@@ -155,17 +155,17 @@
          std = " Total number of non-zeros in the LHS matrix: "//gnnz
 
       IF (resetSim) THEN
-         IF (communicator%foC) CALL memLS_COMMU_FREE(communicator)
-         IF (lhs%foC) CALL memLS_LHS_FREE(lhs)
+         IF (communicator%foC) CALL FSILS_COMMU_FREE(communicator)
+         IF (lhs%foC) CALL FSILS_LHS_FREE(lhs)
       END IF ! resetSim
 
-      dbg = "Calling memLS_COMMU_CREATE"
-      CALL memLS_COMMU_CREATE(communicator, cm%com())
+      dbg = "Calling FSILS_COMMU_CREATE"
+      CALL FSILS_COMMU_CREATE(communicator, cm%com())
 
-      dbg = "Calling memLS_LHS_CREATE"
+      dbg = "Calling FSILS_LHS_CREATE"
 !     For now call this even in the Trilinos methods since sets up required
 !     data structures and compatibility of error checks with parallel code
-         CALL memLS_LHS_CREATE(lhs, communicator, gtnNo, tnNo, nnz, ltg,
+         CALL FSILS_LHS_CREATE(lhs, communicator, gtnNo, tnNo, nnz, ltg,
      &         rowPtr, colPtr, nFacesLS)
 
       IF (.NOT.resetSim) THEN
@@ -452,7 +452,7 @@
       IF (ALLOCATED(rowPtr)) DEALLOCATE(rowPtr)
 
 !     Deallocating sparse matrix structures
-      IF (lhs%foc) CALL memLS_LHS_FREE(lhs)
+      IF (lhs%foc) CALL FSILS_LHS_FREE(lhs)
 #ifdef WITH_TRILINOS
       IF (useTrilinosLS .OR. useTrilinosAssemAndLS) THEN
          CALL TRILINOS_LHS_FREE() !free K and R in C++

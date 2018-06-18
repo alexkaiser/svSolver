@@ -104,8 +104,8 @@ c      INTEGER OMP_GET_NUM_THREADS, OMP_GET_THREAD_NUM
 #else
       IF (useTrilinosLS .OR. useTrilinosAssemAndLS) THEN
            write(*,*) "svFSI is not compiled with Trilinos:
-     2         currently memLS preconditioning will be used instead.
-     3         Use memLS in the input file or set it default."
+     2         currently FSILS preconditioning will be used instead.
+     3         Use FSILS in the input file or set it default."
       ENDIF
 #endif
 !--------------------------------------------------------------------
@@ -249,26 +249,26 @@ c      INTEGER OMP_GET_NUM_THREADS, OMP_GET_THREAD_NUM
             END IF
 !     Solving the linear system of equations
             IF (useTrilinosAssemAndLS) THEN
-               eq(cEq)%memLS%RI%suc = .FALSE.
+               eq(cEq)%FSILS%RI%suc = .FALSE.
 !     Calls C++ solver and stores solution vector in RTrilinos
                CALL TRILINOS_SOLVE(RTrilinos, dirW,
-     2            eq(cEq)%memLS%RI%fNorm, eq(cEq)%memLS%RI%iNorm,
-     3            eq(cEq)%memLS%RI%itr, eq(cEq)%memLS%RI%callD,
-     4            eq(cEq)%memLS%RI%dB, eq(cEq)%memLS%RI%suc,
-     5            eq(cEq)%ls%LS_type, eq(cEq)%memLS%RI%reltol,
-     6            eq(cEq)%memLS%RI%mItr, eq(cEq)%memLS%RI%sD,
+     2            eq(cEq)%FSILS%RI%fNorm, eq(cEq)%FSILS%RI%iNorm,
+     3            eq(cEq)%FSILS%RI%itr, eq(cEq)%FSILS%RI%callD,
+     4            eq(cEq)%FSILS%RI%dB, eq(cEq)%FSILS%RI%suc,
+     5            eq(cEq)%ls%LS_type, eq(cEq)%FSILS%RI%reltol,
+     6            eq(cEq)%FSILS%RI%mItr, eq(cEq)%FSILS%RI%sD,
      7            eq(cEq)%ls%PREC_Type)
             ELSE IF(useTrilinosLS) THEN
                CALL TRILINOS_GLOBAL_SOLVE(Val, R, RTrilinos,
-     2            dirW, eq(cEq)%memLS%RI%fNorm, eq(cEq)%memLS%RI%iNorm,
-     3            eq(cEq)%memLS%RI%itr, eq(cEq)%memLS%RI%callD,
-     4            eq(cEq)%memLS%RI%dB, eq(cEq)%memLS%RI%suc,
-     5            eq(cEq)%ls%LS_type, eq(cEq)%memLS%RI%reltol,
-     6            eq(cEq)%memLS%RI%mItr, eq(cEq)%memLS%RI%sD,
+     2            dirW, eq(cEq)%FSILS%RI%fNorm, eq(cEq)%FSILS%RI%iNorm,
+     3            eq(cEq)%FSILS%RI%itr, eq(cEq)%FSILS%RI%callD,
+     4            eq(cEq)%FSILS%RI%dB, eq(cEq)%FSILS%RI%suc,
+     5            eq(cEq)%ls%LS_type, eq(cEq)%FSILS%RI%reltol,
+     6            eq(cEq)%FSILS%RI%mItr, eq(cEq)%FSILS%RI%sD,
      7            eq(cEq)%ls%PREC_Type)
             ELSE
 #endif
-               CALL memLS_SOLVE(lhs, eq(cEq)%memLS, dof, R, Val, isS,
+               CALL FSILS_SOLVE(lhs, eq(cEq)%FSILS, dof, R, Val, isS,
      2                          incL, res)
 #ifdef WITH_TRILINOS
             END IF
@@ -425,7 +425,7 @@ c      CALL cm%fStop()
       INTEGER faIn, i, faDof, Ac
       LOGICAL flag, isCoupledBC
 
-!     First initialize boundary flags as done in memLS/SOLVE.f
+!     First initialize boundary flags as done in FSILS/SOLVE.f
       IF (lhs%nFaces .NE. 0) THEN
         lhs%face%incFlag = .TRUE.
         DO faIn=1, lhs%nFaces

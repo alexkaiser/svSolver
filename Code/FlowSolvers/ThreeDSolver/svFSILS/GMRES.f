@@ -50,16 +50,16 @@
       
       SUBROUTINE GMRES(lhs, ls, dof, Val, R, X)
       
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_subLsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_subLsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: Val(dof*dof,lhs%nnz), R(dof,lhs%nNo)
       REAL(KIND=8), INTENT(OUT) :: X(dof,lhs%nNo)
      
       INTEGER nNo, mynNo, i, j, k, l
-      REAL(KIND=8) memLS_CPUT, memLS_NORMV, memLS_DOTV, memLS_NCDOTV
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMV, FSILS_DOTV, FSILS_NCDOTV
       REAL(KIND=8) eps, tmp, time
       REAL(KIND=8), ALLOCATABLE :: u(:,:,:), h(:,:), unCondU(:,:), y(:),&
      &   c(:), s(:), err(:)
@@ -70,7 +70,7 @@
       ALLOCATE(h(ls%sD+1,ls%sD), u(dof,nNo,ls%sD+1), unCondU(dof,nNo),  &
      &   y(ls%sD), c(ls%sD), s(ls%sD), err(ls%sD+1))
 
-      time   = memLS_CPUT()
+      time   = FSILS_CPUT()
       ls%suc = .FALSE.
 
       eps = 0D0
@@ -80,7 +80,7 @@
             u(:,:,1) = R
          ELSE
             ls%itr = ls%itr + 1
-            CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof,      &
+            CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof,      &
      &         Val, X, u(:,:,1))
             CALL ADDBCMUL(lhs, BCOP_TYPE_ADD, dof, X, u(:,:,1))
             u(:,:,1) = R - u(:,:,1)
@@ -90,7 +90,7 @@
             CALL ADDBCMUL(lhs, BCOP_TYPE_PRE, dof, unCondU, u(:,:,1))
          END IF
 
-         err(1) = memLS_NORMV(dof, mynNo, lhs%commu, u(:,:,1))
+         err(1) = FSILS_NORMV(dof, mynNo, lhs%commu, u(:,:,1))
          IF (l .EQ. 1) THEN
             eps       = err(1)
             IF (eps .LE. ls%absTol) THEN
@@ -106,7 +106,7 @@
          u(:,:,1) = u(:,:,1)/err(1)
          DO i=1, ls%sD
             ls%itr = ls%itr + 1
-            CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof,      &
+            CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof,      &
      &         Val, u(:,:,i), u(:,:,i+1))
             CALL ADDBCMUL(lhs, BCOP_TYPE_ADD, dof, u(:,:,i), u(:,:,i+1))
             IF (ANY(lhs%face%coupledFlag)) THEN
@@ -114,9 +114,9 @@
                CALL ADDBCMUL(lhs,BCOP_TYPE_PRE,dof, unCondU, u(:,:,i+1))
             END IF
             DO j=1, i+1
-               h(j,i) = memLS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
+               h(j,i) = FSILS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
             END DO
-            CALL memLS_BCASTV(i+1, h(:,i), lhs%commu)
+            CALL FSILS_BCASTV(i+1, h(:,i), lhs%commu)
 
             DO j=1, i
                CALL OMPSUMV(dof, nNo, -h(j,i), u(:,:,i+1), u(:,:,j))
@@ -162,7 +162,7 @@
          IF (ls%suc) EXIT
       END DO
 
-      ls%callD = memLS_CPUT() - time + ls%callD
+      ls%callD = FSILS_CPUT() - time + ls%callD
       ls%dB    = 1D1*LOG(ls%fNorm/ls%dB)
 
       RETURN
@@ -172,15 +172,15 @@
       
       SUBROUTINE GMRESS(lhs, ls, Val, R)
       
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_subLsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_subLsType), INTENT(INOUT) :: ls
       REAL(KIND=8), INTENT(IN) :: Val(lhs%nnz)
       REAL(KIND=8), INTENT(INOUT) :: R(lhs%nNo)
  
       INTEGER nNo, mynNo, i, j, k, l
-      REAL(KIND=8) memLS_CPUT, memLS_NORMS, memLS_DOTS, memLS_NCDOTS
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMS, FSILS_DOTS, FSILS_NCDOTS
       REAL(KIND=8) eps, tmp
       REAL(KIND=8), ALLOCATABLE :: u(:,:), h(:,:), X(:), y(:), c(:),    &
      &   s(:), err(:)
@@ -191,9 +191,9 @@
       ALLOCATE(h(ls%sD+1,ls%sD), u(nNo,ls%sD+1), X(nNo), y(ls%sD),      &
      &   c(ls%sD), s(ls%sD), err(ls%sD+1))
        
-      ls%callD  = memLS_CPUT()
+      ls%callD  = FSILS_CPUT()
       ls%suc    = .FALSE.
-      eps       = memLS_NORMS(mynNo, lhs%commu, R)
+      eps       = FSILS_NORMS(mynNo, lhs%commu, R)
       ls%iNorm  = eps
       ls%fNorm  = eps
       eps       = MAX(ls%absTol,ls%relTol*eps)
@@ -208,20 +208,20 @@
       DO l=1, ls%mItr
          ls%dB = ls%fNorm
          ls%itr = ls%itr + 1
-         CALL memLS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, Val,X,u(:,1))
+         CALL FSILS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, Val,X,u(:,1))
          
          u(:,1) = R - u(:,1)
-         err(1) = memLS_NORMS(mynNo, lhs%commu, u(:,1))
+         err(1) = FSILS_NORMS(mynNo, lhs%commu, u(:,1))
          u(:,1) = u(:,1)/err(1)
          DO i=1, ls%sD
             ls%itr = ls%itr + 1
-            CALL memLS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, Val,      &
+            CALL FSILS_SPARMULSS(lhs, lhs%rowPtr, lhs%colPtr, Val,      &
      &         u(:,i), u(:,i+1))
             
             DO j=1, i+1
-               h(j,i) = memLS_NCDOTS(mynno, u(:,j), u(:,i+1))
+               h(j,i) = FSILS_NCDOTS(mynno, u(:,j), u(:,i+1))
             END DO
-            CALL memLS_BCASTV(i+1, h(:,i), lhs%commu)
+            CALL FSILS_BCASTV(i+1, h(:,i), lhs%commu)
 
             DO j=1, i
                CALL OMPSUMS(nNo, -h(j,i), u(:,i+1), u(:,j))
@@ -267,7 +267,7 @@
          IF (ls%suc) EXIT
       END DO
       R = X
-      ls%callD = memLS_CPUT() - ls%callD
+      ls%callD = FSILS_CPUT() - ls%callD
       ls%dB    = 1D1*LOG(ls%fNorm/ls%dB)
 
       RETURN
@@ -276,17 +276,17 @@
       
       SUBROUTINE GMRESV(lhs, ls, dof, Val, R)
       
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_subLsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_subLsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(IN) :: Val(dof*dof,lhs%nnz)
       REAL(KIND=8), INTENT(INOUT) :: R(dof,lhs%nNo)
  
       LOGICAL flag
       INTEGER nNo, mynNo, i, j, k, l
-      REAL(KIND=8) memLS_CPUT, memLS_NORMV, memLS_DOTV, memLS_NCDOTV
+      REAL(KIND=8) FSILS_CPUT, FSILS_NORMV, FSILS_DOTV, FSILS_NCDOTV
       REAL(KIND=8) eps, tmp
       REAL(KIND=8), ALLOCATABLE :: u(:,:,:), h(:,:), X(:,:), y(:), c(:),&
      &   s(:), err(:), unCondU(:,:)
@@ -298,9 +298,9 @@
       ALLOCATE(h(ls%sD+1,ls%sD), u(dof,nNo,ls%sD+1), X(dof,nNo),        &
      &   y(ls%sD), c(ls%sD), s(ls%sD), err(ls%sD+1), unCondU(dof,nNo))
        
-      ls%callD  = memLS_CPUT()
+      ls%callD  = FSILS_CPUT()
       ls%suc    = .FALSE.
-      eps       = memLS_NORMV(dof, mynNo, lhs%commu, R)
+      eps       = FSILS_NORMV(dof, mynNo, lhs%commu, R)
       ls%iNorm  = eps
       ls%fNorm  = eps
       eps       = MAX(ls%absTol,ls%relTol*eps)
@@ -318,7 +318,7 @@
       DO l=1, ls%mItr
          ls%dB = ls%fNorm
          ls%itr = ls%itr + 1
-         CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, X, &
+         CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, X, &
      &      u(:,:,1))
          CALL ADDBCMUL(lhs, BCOP_TYPE_ADD, dof, X, u(:,:,1))
  
@@ -327,11 +327,11 @@
             unCondU = u(:,:,1)
             CALL ADDBCMUL(lhs, BCOP_TYPE_PRE, dof, unCondU, u(:,:,1))
          END IF
-         err(1)   = memLS_NORMV(dof, mynNo, lhs%commu, u(:,:,1))
+         err(1)   = FSILS_NORMV(dof, mynNo, lhs%commu, u(:,:,1))
          u(:,:,1) = u(:,:,1)/err(1)
          DO i=1, ls%sD
             ls%itr = ls%itr + 1
-            CALL memLS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, &
+            CALL FSILS_SPARMULVV(lhs, lhs%rowPtr, lhs%colPtr, dof, Val, &
      &         u(:,:,i), u(:,:,i+1))
             CALL ADDBCMUL(lhs, BCOP_TYPE_ADD, dof, u(:,:,i), u(:,:,i+1))
 
@@ -340,9 +340,9 @@
                CALL ADDBCMUL(lhs,BCOP_TYPE_PRE,dof, unCondU, u(:,:,i+1))
             END IF
             DO j=1, i+1
-               h(j,i) = memLS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
+               h(j,i) = FSILS_NCDOTV(dof, mynno, u(:,:,j), u(:,:,i+1))
             END DO
-            CALL memLS_BCASTV(i+1, h(:,i), lhs%commu)
+            CALL FSILS_BCASTV(i+1, h(:,i), lhs%commu)
             
             DO j=1, i
                CALL OMPSUMV(dof, nNo, -h(j,i), u(:,:,i+1), u(:,:,j))
@@ -388,7 +388,7 @@
          IF (ls%suc) EXIT
       END DO
       R = X
-      ls%callD = memLS_CPUT() - ls%callD
+      ls%callD = FSILS_CPUT() - ls%callD
       ls%dB    = 1D1*LOG(ls%fNorm/ls%dB)
 
       RETURN
@@ -400,7 +400,7 @@
       IMPLICIT NONE
 
       INTEGER faIn, i, a, Ac, nsd
-      REAL(KIND=8) memLS_NORMV
+      REAL(KIND=8) FSILS_NORMV
       REAL(KIND=8), ALLOCATABLE :: v(:,:)
 
       nsd = dof -  1
@@ -415,7 +415,7 @@
                      v(i,Ac) = lhs%face(faIn)%valM(i,a)
                   END DO
                END DO
-               lhs%face(faIn)%nS = memLS_NORMV(nsd, mynNo, lhs%commu,   &
+               lhs%face(faIn)%nS = FSILS_NORMV(nsd, mynNo, lhs%commu,   &
      &            v)**2D0
             ELSE
                lhs%face(faIn)%nS = 0D0

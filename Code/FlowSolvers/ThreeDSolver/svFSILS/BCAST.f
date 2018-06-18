@@ -47,12 +47,12 @@
 !     To broadcast a variable to all processors      
 !--------------------------------------------------------------------
 
-      SUBROUTINE memLS_BCAST(u, commu)
+      SUBROUTINE FSILS_BCAST(u, commu)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
       REAL(KIND=8), INTENT(INOUT) :: u
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
 
       INTEGER ierr
       REAL(KIND=8) uG
@@ -63,17 +63,17 @@
       END IF
 
       RETURN
-      END SUBROUTINE memLS_BCAST
+      END SUBROUTINE FSILS_BCAST
       
 !====================================================================
 
-      SUBROUTINE memLS_BCASTV(n, u, commu)
+      SUBROUTINE FSILS_BCASTV(n, u, commu)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
       INTEGER, INTENT(IN) :: n
       REAL(KIND=8), INTENT(INOUT) :: u(n)
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
 
       INTEGER ierr
       REAL(KIND=8), ALLOCATABLE :: uG(:)
@@ -85,4 +85,4 @@
       END IF
 
       RETURN
-      END SUBROUTINE memLS_BCASTV
+      END SUBROUTINE FSILS_BCASTV

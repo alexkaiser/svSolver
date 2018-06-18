@@ -138,8 +138,8 @@ c      END DO
          tmp2 = 1D0
          i    = 0
       ELSE
-         tmp  = eq(iEq)%memLS%RI%iNorm/eq(iEq)%iNorm !||b|| / |initial at time 0
-         tmp2 = eq(iEq)%memLS%RI%fNorm/eq(iEq)%memLS%RI%iNorm !||rf|| / ||b||scaled residual
+         tmp  = eq(iEq)%FSILS%RI%iNorm/eq(iEq)%iNorm !||b|| / |initial at time 0
+         tmp2 = eq(iEq)%FSILS%RI%fNorm/eq(iEq)%FSILS%RI%iNorm !||rf|| / ||b||scaled residual
          i    = INT(2D1*LOG10(tmp/eq(iEq)%pNorm))
       END IF
 
@@ -152,17 +152,17 @@ c      END DO
      2   STR(tmp2,7)//c2
 
       IF (ISZERO(timeP(3),timeP(2))) timeP(3) = (1D0+eps)*timeP(2) + eps
-      tmp = 1D2*eq(iEq)%memLS%RI%callD/(timeP(3) - timeP(2))
+      tmp = 1D2*eq(iEq)%FSILS%RI%callD/(timeP(3) - timeP(2))
       timeP(2) = timeP(3)
       IF (ABS(tmp) .GT. 1D2) tmp = 1D2
 
-      IF (eq(iEq)%memLS%RI%suc) THEN
+      IF (eq(iEq)%FSILS%RI%suc) THEN
          c1 = "["; c2 = "]"
       ELSE
          c1 = "!"; c2 = "!"
       END IF
-      sOut = TRIM(sOut)//"  "//c1//STR(eq(iEq)%memLS%RI%itr,4)//" "//
-     2   STR(NINT(eq(iEq)%memLS%RI%dB),3)//" "//STR(NINT(tmp),3)//c2
+      sOut = TRIM(sOut)//"  "//c1//STR(eq(iEq)%FSILS%RI%itr,4)//" "//
+     2   STR(NINT(eq(iEq)%FSILS%RI%dB),3)//" "//STR(NINT(tmp),3)//c2
 
       IF (nEq .GT. 1) THEN
          std = CLR(sOut,iEq)

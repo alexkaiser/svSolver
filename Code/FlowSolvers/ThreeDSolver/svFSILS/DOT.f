@@ -53,184 +53,184 @@
 !     In order to have the correct answer it is needed that COMMU has
 !     been done before calling this function (or the ansesters of U and
 !     V are passed through COMMU)
-      FUNCTION memLS_DOTV(dof, nNo, commu, U, V)
+      FUNCTION FSILS_DOTV(dof, nNo, commu, U, V)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
       
       INTEGER, INTENT(IN) :: dof, nNo
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
       REAL(KIND=8), INTENT(IN) :: V(dof,nNo), U(dof,nNo)
       
       INTEGER i, ierr
-      REAL(KIND=8) tmp, memLS_DOTV
+      REAL(KIND=8) tmp, FSILS_DOTV
 
-      memLS_DOTV = 0D0
+      FSILS_DOTV = 0D0
       SELECT CASE(dof)
       CASE(1)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i)
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(2)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i)
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(3)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
      &         U(3,i)*V(3,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(4)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
      &         U(3,i)*V(3,i) + U(4,i)*V(4,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE DEFAULT 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + SUM(U(:,i)*V(:,i))
+            FSILS_DOTV = FSILS_DOTV + SUM(U(:,i)*V(:,i))
          END DO
 !$OMP END PARALLEL DO         
       END SELECT
 
       IF (commu%nTasks .EQ. 1) RETURN
-      CALL MPI_ALLREDUCE(memLS_DOTV, tmp, 1, mpreal, MPI_SUM,           &
+      CALL MPI_ALLREDUCE(FSILS_DOTV, tmp, 1, mpreal, MPI_SUM,           &
      &   commu%comm, ierr)
 
-      memLS_DOTV = tmp
+      FSILS_DOTV = tmp
 
       RETURN
-      END FUNCTION memLS_DOTV
+      END FUNCTION FSILS_DOTV
 
 !====================================================================
       
-      FUNCTION memLS_DOTS(nNo, commu, U, V)
+      FUNCTION FSILS_DOTS(nNo, commu, U, V)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
       
       INTEGER, INTENT(IN) :: nNo
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
       REAL(KIND=8), INTENT(IN) :: V(nNo), U(nNo)
  
       INTEGER i, ierr
-      REAL(KIND=8) tmp, memLS_DOTS
+      REAL(KIND=8) tmp, FSILS_DOTS
 
-      memLS_DOTS = 0D0
+      FSILS_DOTS = 0D0
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTS)
+!$OMP&   REDUCTION(+:FSILS_DOTS)
       DO i=1, nNo
-         memLS_DOTS = memLS_DOTS + U(i)*V(i)
+         FSILS_DOTS = FSILS_DOTS + U(i)*V(i)
       END DO
 !$OMP END PARALLEL DO         
 
       IF (commu%nTasks .EQ. 1) RETURN
-      CALL MPI_ALLREDUCE(memLS_DOTS, tmp, 1, mpreal, MPI_SUM,           &
+      CALL MPI_ALLREDUCE(FSILS_DOTS, tmp, 1, mpreal, MPI_SUM,           &
      &   commu%comm, ierr)
 
-      memLS_DOTS = tmp
+      FSILS_DOTS = tmp
 
       RETURN
-      END FUNCTION memLS_DOTS
+      END FUNCTION FSILS_DOTS
 
 !####################################################################
       
-      FUNCTION memLS_NCDOTV(dof, nNo, U, V) RESULT(memLS_DOTV)
+      FUNCTION FSILS_NCDOTV(dof, nNo, U, V) RESULT(FSILS_DOTV)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
       
       INTEGER, INTENT(IN) :: dof, nNo
       REAL(KIND=8), INTENT(IN) :: V(dof,nNo), U(dof,nNo)
       
       INTEGER i, ierr
-      REAL(KIND=8) tmp, memLS_DOTV
+      REAL(KIND=8) tmp, FSILS_DOTV
 
-      memLS_DOTV = 0D0
+      FSILS_DOTV = 0D0
       SELECT CASE(dof)
       CASE(1)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i)
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(2)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i)
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(3)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
      &         U(3,i)*V(3,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(4)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
+            FSILS_DOTV = FSILS_DOTV + U(1,i)*V(1,i) + U(2,i)*V(2,i) +   &
      &         U(3,i)*V(3,i) + U(4,i)*V(4,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE DEFAULT 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTV)
+!$OMP&   REDUCTION(+:FSILS_DOTV)
          DO i=1, nNo
-            memLS_DOTV = memLS_DOTV + SUM(U(:,i)*V(:,i))
+            FSILS_DOTV = FSILS_DOTV + SUM(U(:,i)*V(:,i))
          END DO
 !$OMP END PARALLEL DO         
       END SELECT
 
       RETURN
-      END FUNCTION memLS_NCDOTV
+      END FUNCTION FSILS_NCDOTV
 
 !====================================================================
       
-      FUNCTION memLS_NCDOTS(nNo, U, V) RESULT(memLS_DOTS)
+      FUNCTION FSILS_NCDOTS(nNo, U, V) RESULT(FSILS_DOTS)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
       
       INTEGER, INTENT(IN) :: nNo
       REAL(KIND=8), INTENT(IN) :: V(nNo), U(nNo)
  
       INTEGER i, ierr
-      REAL(KIND=8) tmp, memLS_DOTS
+      REAL(KIND=8) tmp, FSILS_DOTS
 
-      memLS_DOTS = 0D0
+      FSILS_DOTS = 0D0
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-!$OMP&   REDUCTION(+:memLS_DOTS)
+!$OMP&   REDUCTION(+:FSILS_DOTS)
       DO i=1, nNo
-         memLS_DOTS = memLS_DOTS + U(i)*V(i)
+         FSILS_DOTS = FSILS_DOTS + U(i)*V(i)
       END DO
 !$OMP END PARALLEL DO         
 
       RETURN
-      END FUNCTION memLS_NCDOTS
+      END FUNCTION FSILS_NCDOTS
 
 !####################################################################
  
-      SUBROUTINE memLS_MULTDOTV(dof, nNo, tnNo, nV, commu, U, V, res)
+      SUBROUTINE FSILS_MULTDOTV(dof, nNo, tnNo, nV, commu, U, V, res)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
       
       INTEGER, INTENT(IN) :: dof, nNo, tnNo, nV
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
       REAL(KIND=8), INTENT(IN) :: U(dof,tnNo,nV), V(dof,tnNo)
       REAL(KIND=8), INTENT(OUT) :: res(nV)
       
@@ -296,16 +296,16 @@
       res = tmp
 
       RETURN
-      END SUBROUTINE memLS_MULTDOTV
+      END SUBROUTINE FSILS_MULTDOTV
 
 !====================================================================
   
-      SUBROUTINE memLS_MULTDOTS(nNo, tnNo, nV, commu, U, V, res)
+      SUBROUTINE FSILS_MULTDOTS(nNo, tnNo, nV, commu, U, V, res)
  
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
       
       INTEGER, INTENT(IN) :: nNo, tnNo, nV
-      TYPE(memLS_commuType), INTENT(IN) :: commu
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
       REAL(KIND=8), INTENT(IN) :: U(tnNo,nV), V(tnNo)
       REAL(KIND=8), INTENT(OUT) :: res(nV)
       
@@ -328,4 +328,4 @@
       res = tmp
 
       RETURN
-      END SUBROUTINE memLS_MULTDOTS
+      END SUBROUTINE FSILS_MULTDOTS

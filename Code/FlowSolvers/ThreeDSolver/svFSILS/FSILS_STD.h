@@ -44,9 +44,19 @@
 !     MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 !
 !--------------------------------------------------------------------
-!     This is the main header that needs to be included in your solver 
-!     to get access to the memLS_API and data structures
+!     Standard headers and variables used in FSILS
 !--------------------------------------------------------------------
 
-      INCLUDE "memLS_STRUCT.h"
-      INCLUDE "memLS_API.h"
+      USE ISO_FORTRAN_ENV
+      
+      IMPLICIT NONE
+ 
+      INCLUDE "FSILS_STRUCT.h"
+      INCLUDE "mpif.h"
+
+      INTEGER, PARAMETER :: mplog  = MPI_LOGICAL, mpint  = MPI_INTEGER, &
+     &   mpreal = MPI_DOUBLE_PRECISION, mpchar = MPI_CHARACTER,         &
+     &   mpsts = MPI_STATUS_SIZE
+
+!     Communication parameters
+      INTEGER, PARAMETER :: stdout = OUTPUT_UNIT

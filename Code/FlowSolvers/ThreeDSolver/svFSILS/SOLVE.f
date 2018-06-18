@@ -48,12 +48,12 @@
 !     the solution is returned
 !--------------------------------------------------------------------
 
-      SUBROUTINE memLS_SOLVE (lhs, ls, dof, Ri, Val, isS, incL, res)
+      SUBROUTINE FSILS_SOLVE (lhs, ls, dof, Ri, Val, isS, incL, res)
 
-      INCLUDE "memLS_STD.h"
+      INCLUDE "FSILS_STD.h"
 
-      TYPE(memLS_lhsType), INTENT(INOUT) :: lhs
-      TYPE(memLS_lsType), INTENT(INOUT) :: ls
+      TYPE(FSILS_lhsType), INTENT(INOUT) :: lhs
+      TYPE(FSILS_lsType), INTENT(INOUT) :: ls
       INTEGER, INTENT(IN) :: dof
       REAL(KIND=8), INTENT(INOUT) :: Ri(dof,lhs%nNo)
       REAL(KIND=8), INTENT(INOUT) :: Val(dof*dof,lhs%nnz)
@@ -79,8 +79,8 @@
 
          flag = ANY(lhs%face%bGrp.EQ.BC_TYPE_Neu)
          IF (.NOT.PRESENT(res) .AND. flag) THEN
-            PRINT *, "memLS: res is required for Neu surfaces"
-            STOP "memLS: FATAL ERROR"
+            PRINT *, "FSILS: res is required for Neu surfaces"
+            STOP "FSILS: FATAL ERROR"
          END IF
          DO faIn=1, lhs%nFaces
             lhs%face(faIn)%coupledFlag = .FALSE.
@@ -98,7 +98,7 @@
          R(:,lhs%map(a)) = Ri(:,a)
       END DO
 
-      CALL memLS_COMMUV(lhs, dof, R)
+      CALL FSILS_COMMUV(lhs, dof, R)
       CALL PRECOND(lhs, lhs%rowPtr, lhs%colPtr, lhs%diagPtr,dof,Val,R,W)
  
       SELECT CASE (ls%LS_type)
@@ -123,8 +123,8 @@
                CALL BICGSV(lhs, ls%RI, dof, Val, R)
             END IF
          CASE DEFAULT
-            PRINT *, 'memLS: LS_type not defined'
-            STOP "memLS: FATAL ERROR"
+            PRINT *, 'FSILS: LS_type not defined'
+            STOP "FSILS: FATAL ERROR"
       END SELECT
       R = R*W
 
@@ -135,5 +135,5 @@
       DEALLOCATE(R, W)
 
       RETURN
-      END SUBROUTINE memLS_SOLVE
+      END SUBROUTINE FSILS_SOLVE
 

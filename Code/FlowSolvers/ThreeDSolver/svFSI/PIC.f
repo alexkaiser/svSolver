@@ -162,16 +162,16 @@
       END IF
 !$OMP END PARALLEL
 
-      IF (ISZERO(eq(cEq)%memLS%RI%iNorm)) eq(cEq)%memLS%RI%iNorm = eps
-      IF (ISZERO(eq(cEq)%iNorm)) eq(cEq)%iNorm = eq(cEq)%memLS%RI%iNorm
+      IF (ISZERO(eq(cEq)%FSILS%RI%iNorm)) eq(cEq)%FSILS%RI%iNorm = eps
+      IF (ISZERO(eq(cEq)%iNorm)) eq(cEq)%iNorm = eq(cEq)%FSILS%RI%iNorm
       IF (eq(cEq)%itr .EQ. 1) THEN
-         eq(cEq)%pNorm = eq(cEq)%memLS%RI%iNorm/eq(cEq)%iNorm
+         eq(cEq)%pNorm = eq(cEq)%FSILS%RI%iNorm/eq(cEq)%iNorm
       END IF
       tmp = 2D1*
-     2   LOG10(eq(cEq)%memLS%RI%iNorm/eq(cEq)%iNorm/eq(cEq)%pNorm)
+     2   LOG10(eq(cEq)%FSILS%RI%iNorm/eq(cEq)%iNorm/eq(cEq)%pNorm)
 
       l1 = eq(cEq)%itr .GE. eq(cEq)%maxItr
-      l2 = eq(cEq)%memLS%RI%iNorm .LE. eq(cEq)%tol*eq(cEq)%iNorm
+      l2 = eq(cEq)%FSILS%RI%iNorm .LE. eq(cEq)%tol*eq(cEq)%iNorm
       l3 = eq(cEq)%itr .GE. eq(cEq)%minItr
       l4 = tmp .LE. eq(cEq)%dBr
       IF (l1 .OR. (l2.AND.l3.AND.l4)) eq(cEq)%ok = .TRUE.

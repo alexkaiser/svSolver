@@ -49,16 +49,16 @@
  *--------------------------------------------------------------------
  */
    
-void memls_commu_create_(memLS_commuType* commu, MPI_Aint* commi);
-void memls_commu_free_(memLS_commuType* commu);
+void fsils_commu_create_(FSILS_commuType* commu, MPI_Aint* commi);
+void fsils_commu_free_(FSILS_commuType* commu);
          
-void memls_lhs_create_c_(void** lhs, memLS_commuType* commu, int* gnNo, int* nNo, int* nnz, int* gNodes, int* rowPtr, int* colPtr, int* nFaces);
-void memls_lhs_free_(void* lhs);
+void fsils_lhs_create_c_(void** lhs, FSILS_commuType* commu, int* gnNo, int* nNo, int* nnz, int* gNodes, int* rowPtr, int* colPtr, int* nFaces);
+void fsils_lhs_free_(void* lhs);
 
-void memls_ls_create_(memLS_lsType* ls, int* LS_type, double* relTol, double* absTol, int* maxItr, int* dimKry, double* relTolIn, double* absTolIn, int* maxItrIn);
-void memls_ls_free_(memLS_lsType* ls);
+void fsils_ls_create_(FSILS_lsType* ls, int* LS_type, double* relTol, double* absTol, int* maxItr, int* dimKry, double* relTolIn, double* absTolIn, int* maxItrIn);
+void fsils_ls_free_(FSILS_lsType* ls);
          
-void memls_bc_create_(void* lhs, int* faIn, int* nNo, int* dof, int* BC_type, int* gNodes, double* Val);
-void memls_bc_free_(void* lhs, int* faIn);
+void fsils_bc_create_(void* lhs, int* faIn, int* nNo, int* dof, int* BC_type, int* gNodes, double* Val);
+void fsils_bc_free_(void* lhs, int* faIn);
          
-void memls_solve_(void* lhs, memLS_lsType* ls, int* dof, double* Ri, double* Val, int* incL, double* res);
+void fsils_solve_(void* lhs, FSILS_lsType* ls, int* dof, double* Ri, double* Val, int* incL, double* res);

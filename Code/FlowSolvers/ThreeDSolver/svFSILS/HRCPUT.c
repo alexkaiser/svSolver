@@ -6,7 +6,7 @@
    #include <mach/mach.h>
 #endif
 
-double memls_hrcput_()
+double fsils_hrcput_()
 {
    struct timespec time;
    double res;

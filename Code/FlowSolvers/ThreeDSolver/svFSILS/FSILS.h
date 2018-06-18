@@ -44,59 +44,9 @@
 !     MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 !
 !--------------------------------------------------------------------
-!     Communication structure is created here.
+!     This is the main header that needs to be included in your solver 
+!     to get access to the FSILS_API and data structures
 !--------------------------------------------------------------------
 
-      SUBROUTINE memLS_COMMU_CREATE(commu, commi)
-      
-      INCLUDE "memLS_STD.h"
-   
-      TYPE(memLS_commuType), INTENT(INOUT) :: commu
-      INTEGER, INTENT(IN) :: commi
-
-      INTEGER ierr
-
-      IF (commu%foC) THEN
-         PRINT *, "memLS: COMMU is not free, you may use",              &
-     &      " memLS_COMMU_FREE to free it"
-         STOP "memLS: FATAL ERROR"
-      END IF
-
-!     Some of these parameters are set for sequential version
-      commu%foC    = .TRUE.
-      commu%comm   = commi
-      commu%nTasks = 1
-      commu%task   = 0
-      commu%master = 0
-
-      CALL MPI_COMM_RANK(commi, commu%task, ierr)
-      CALL MPI_COMM_SIZE(commi, commu%nTasks, ierr)
-      CALL MPI_ALLREDUCE(commu%task, commu%master, 1, mpint, MPI_MIN,   &
-     &   commi, ierr)
-      
-      IF (commu%master .NE. 0) THEN
-         STOP "Master ID is not zero - might cause problems"
-      END IF
-
-      commu%masF = .FALSE.
-      commu%tF   = commu%task + 1
-      IF (commu%task .EQ. commu%master) THEN
-         commu%masF = .TRUE.
-      END IF
-
-      RETURN
-      END SUBROUTINE memLS_COMMU_CREATE
-
-!====================================================================
-
-      SUBROUTINE memLS_COMMU_FREE(commu)
-      
-      INCLUDE "memLS_STD.h"
-   
-      TYPE(memLS_commuType), INTENT(INOUT) :: commu
-
-      IF (.NOT.commu%foC) STOP 'COMMU is not created yet to be freed'
-      commu%foC  = .FALSE.
-
-      RETURN
-      END SUBROUTINE memLS_COMMU_FREE
+      INCLUDE "FSILS_STRUCT.h"
+      INCLUDE "FSILS_API.h"

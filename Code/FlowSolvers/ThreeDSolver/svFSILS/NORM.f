@@ -43,157 +43,106 @@
 !     UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE 
 !     MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 !
-!-------------------------------------------------------------------- 
-!     A bunch of operation that benefits from OMP hyperthreading
+!--------------------------------------------------------------------
+!     For calculating the norm of a scaler or vector based vector.
 !--------------------------------------------------------------------
       
-      SUBROUTINE OMPSUMS (nNo, r, U, V)
-      
-      INCLUDE "memLS_STD.h"
-
-      INTEGER, INTENT(IN) :: nNo
-      REAL(KIND=8), INTENT(IN) :: r, V(nNo)
-      REAL(KIND=8), INTENT(INOUT) :: U(nNo)
-     
-      INTEGER i
-
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-      DO i=1, nNo
-         U(i) = U(i) + r*V(i)
-      END DO
-!$OMP END PARALLEL DO
-
-      RETURN
-      END SUBROUTINE OMPSUMS
-
-!====================================================================
-
-      SUBROUTINE OMPSUMV (dof, nNo, r, U, V)
-      
-      INCLUDE "memLS_STD.h"
-
+!     Only the part of U which is owned by this processor is included in
+!     norm calculation, i.e. U(:,1:cS(tF)%ptr+cS(tF)%n-1)
+!     In order to have the correct answer it is needed that COMMU has
+!     been done before calling this function (or the ansesters of U
+!     are passed through COMMU)
+      FUNCTION FSILS_NORMV(dof, nNo, commu, U)
+ 
+      INCLUDE "FSILS_STD.h"
+       
       INTEGER, INTENT(IN) :: dof, nNo
-      REAL(KIND=8), INTENT(IN) :: r, V(dof,nNo)
-      REAL(KIND=8), INTENT(INOUT) :: U(dof,nNo)
-     
-      INTEGER i
-
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
+      REAL(KIND=8), INTENT(IN) :: U(dof,nNo)
+      
+      INTEGER i, ierr
+      REAL(KIND=8) tmp, FSILS_NORMV
+            
+      FSILS_NORMV = 0D0
       SELECT CASE(dof)
       CASE(1)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
+!$OMP&   REDUCTION(+:FSILS_NORMV)
          DO i=1, nNo
-            U(1,i) = U(1,i) + r*V(1,i)
+            FSILS_NORMV = FSILS_NORMV + U(1,i)*U(1,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(2)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
+!$OMP&   REDUCTION(+:FSILS_NORMV)
          DO i=1, nNo
-            U(1,i) = U(1,i) + r*V(1,i)
-            U(2,i) = U(2,i) + r*V(2,i)
+            FSILS_NORMV = FSILS_NORMV + U(1,i)*U(1,i) + U(2,i)*U(2,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(3)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
+!$OMP&   REDUCTION(+:FSILS_NORMV)
          DO i=1, nNo
-            U(1,i) = U(1,i) + r*V(1,i)
-            U(2,i) = U(2,i) + r*V(2,i)
-            U(3,i) = U(3,i) + r*V(3,i)
+            FSILS_NORMV = FSILS_NORMV + U(1,i)*U(1,i) + U(2,i)*U(2,i) + &
+     &         U(3,i)*U(3,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE(4)
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
+!$OMP&   REDUCTION(+:FSILS_NORMV)
          DO i=1, nNo
-            U(1,i) = U(1,i) + r*V(1,i)
-            U(2,i) = U(2,i) + r*V(2,i)
-            U(3,i) = U(3,i) + r*V(3,i)
-            U(4,i) = U(4,i) + r*V(4,i)
+            FSILS_NORMV = FSILS_NORMV + U(1,i)*U(1,i) + U(2,i)*U(2,i) + &
+     &         U(3,i)*U(3,i) + U(4,i)*U(4,i)
          END DO
 !$OMP END PARALLEL DO         
       CASE DEFAULT 
 !$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
+!$OMP&   REDUCTION(+:FSILS_NORMV)
          DO i=1, nNo
-            U(:,i) = U(:,i) + r*V(:,i)
+            FSILS_NORMV = FSILS_NORMV + SUM(U(:,i)*U(:,i))
          END DO
-!$OMP END PARALLEL DO
+!$OMP END PARALLEL DO         
       END SELECT
 
+      IF (commu%nTasks .NE. 1) THEN
+         CALL MPI_ALLREDUCE(FSILS_NORMV, tmp, 1, mpreal, MPI_SUM,       &
+     &      commu%comm, ierr)
+         FSILS_NORMV = tmp
+      END IF
+      FSILS_NORMV = SQRT(FSILS_NORMV)
+
       RETURN
-      END SUBROUTINE OMPSUMV
+      END FUNCTION FSILS_NORMV
 
 !====================================================================
       
-      SUBROUTINE OMPMULS (nNo, r, U)
+      FUNCTION FSILS_NORMS(nNo, commu, U)
+ 
+      INCLUDE "FSILS_STD.h"
       
-      INCLUDE "memLS_STD.h"
-
       INTEGER, INTENT(IN) :: nNo
-      REAL(KIND=8), INTENT(IN) :: r
-      REAL(KIND=8), INTENT(INOUT) :: U(nNo)
-     
-      INTEGER i
-
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-      DO i=1, nNo
-         U(i) = r*U(i)
-      END DO
-!$OMP END PARALLEL DO
-
-      RETURN
-      END SUBROUTINE OMPMULS
-
-!====================================================================
-
-      SUBROUTINE OMPMULV (dof, nNo, r, U)
+      TYPE(FSILS_commuType), INTENT(IN) :: commu
+      REAL(KIND=8), INTENT(IN) :: U(nNo)
       
-      INCLUDE "memLS_STD.h"
+      INTEGER i, ierr
+      REAL(KIND=8) tmp, FSILS_NORMS
+      
+      FSILS_NORMS = 0D0
+!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
+!$OMP&   REDUCTION(+:FSILS_NORMS)
+      DO i=1, nNo
+         FSILS_NORMS = FSILS_NORMS + U(i)*U(i)
+      END DO
+!$OMP END PARALLEL DO         
 
-      INTEGER, INTENT(IN) :: dof, nNo
-      REAL(KIND=8), INTENT(IN) :: r
-      REAL(KIND=8), INTENT(INOUT) :: U(dof,nNo)
-     
-      INTEGER i
-
-      SELECT CASE(dof)
-      CASE(1)
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-         DO i=1, nNo
-            U(1,i) = r*U(1,i)
-         END DO
-!$OMP END PARALLEL DO         
-      CASE(2)
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-         DO i=1, nNo
-            U(1,i) = r*U(1,i)
-            U(2,i) = r*U(2,i)
-         END DO
-!$OMP END PARALLEL DO         
-      CASE(3)
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-         DO i=1, nNo
-            U(1,i) = r*U(1,i)
-            U(2,i) = r*U(2,i)
-            U(3,i) = r*U(3,i)
-         END DO
-!$OMP END PARALLEL DO         
-      CASE(4)
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-         DO i=1, nNo
-            U(1,i) = r*U(1,i)
-            U(2,i) = r*U(2,i)
-            U(3,i) = r*U(3,i)
-            U(4,i) = r*U(4,i)
-         END DO
-!$OMP END PARALLEL DO         
-      CASE DEFAULT 
-!$OMP PARALLEL DO DEFAULT(SHARED) PRIVATE(i) SCHEDULE(GUIDED)
-         DO i=1, nNo
-            U(:,i) = r*U(:,i)
-         END DO
-!$OMP END PARALLEL DO
-      END SELECT
+      IF (commu%nTasks .NE. 1) THEN
+         CALL MPI_ALLREDUCE(FSILS_NORMS, tmp, 1, mpreal, MPI_SUM,       &
+     &      commu%comm, ierr)
+         FSILS_NORMS = tmp
+      END IF
+      FSILS_NORMS = SQRT(FSILS_NORMS)
 
       RETURN
-      END SUBROUTINE OMPMULV
+      END FUNCTION FSILS_NORMS
 
-!====================================================================
 

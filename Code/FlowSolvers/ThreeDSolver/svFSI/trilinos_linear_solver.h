@@ -76,12 +76,12 @@
 /*                      Macro Definitions                     */
 /**************************************************************/
 
-// Define linear solver as following naming in memLS_struct
+// Define linear solver as following naming in FSILS_struct
 #define TRILINOS_CG_SOLVER 798
 #define TRILINOS_GMRES_SOLVER 797
 #define TRILINOS_BICGSTAB_SOLVER 795
 
-// Define preconditioners as following naming in memLS_struct
+// Define preconditioners as following naming in FSILS_struct
 #define NO_PRECONDITIONER 700
 #define TRILINOS_DIAGONAL_PRECONDITIONER 702
 #define TRILINOS_BLOCK_JACOBI_PRECONDITIONER 703
